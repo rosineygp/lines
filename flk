@@ -808,7 +808,14 @@ prn () {
 println () {
     local res=""
     for x in "${@}"; do _pr_str "${x}"; res="${res} ${r}"; done
-    echo "${res:1}"
+    echo -e "${res:1}"
+    r="${__nil}";
+}
+
+println_stderr () {
+    local res=""
+    for x in "${@}"; do _pr_str "${x}"; res="${res} ${r}"; done
+    echo -e "${res:1}" >&2
     r="${__nil}";
 }
 
@@ -1083,6 +1090,7 @@ declare -A core_ns=(
     [str]=str
     [prn]=prn
     [println]=println
+    [println-stderr]=println_stderr
     [readline]=readline
     [read-string]=read_string
     [slurp]=slurp
