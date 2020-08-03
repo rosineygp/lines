@@ -1,0 +1,51 @@
+diff --git a/flk b/flk
+index e75aa0b..224b9db 100755
+--- a/flk
++++ b/flk
+@@ -364,6 +364,25 @@ _map () {
+     _map_with_type _list "${@}"
+ }
+ 
++_pmap_with_type () {
++    local constructor="${1}"; shift
++    local f="${1}"; shift
++    local items="${ANON["${1}"]}"; shift
++    eval "${constructor}"; local new_seq="${r}"
++    for v in ${items}; do
++        #echo eval ${f%%@*} "${v}" "${@}"
++        eval ${f%%@*} "${v}" "${@}" &
++        [[ "${__ERROR}" ]] && r= && return 1
++        _conj! "${new_seq}" "${r}"
++    done
++    r="${new_seq}"
++}
++
++_pmap () {
++    _pmap_with_type _list "${@}"
++    wait
++}
++
+ fi
+ #
+ # mal (Make Lisp) Parser/Reader
+@@ -983,6 +1002,12 @@ map () {
+     _map "${f}" "${@}"
+ }
+ 
++pmap () {
++    local f="${ANON["${1}"]}"; shift
++    #echo _map "${f}" "${@}"
++    _pmap "${f}" "${@}"
++}
++
+ conj () {
+     local obj="${1}"; shift
+     local obj_data="${ANON["${obj}"]}"
+@@ -1127,6 +1152,7 @@ declare -A core_ns=(
+     [count]=count
+     [apply]=apply
+     [map]=map
++    [pmap]=pmap
+ 
+     [conj]=conj
+     [seq]=seq
