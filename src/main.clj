@@ -39,6 +39,7 @@
 (defn lines-docker-run [job]
   (let [result (docker ["run"
                         "--detach"
+                        "--rm"
                         "--workdir" repos
                         (get job :image)
                         "sleep" ttl])]
