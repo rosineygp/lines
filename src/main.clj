@@ -29,6 +29,13 @@
     (if (= (empty? err) false) (println-stderr (red err)))
     (if (number? exit-code) (println-stderr (magenta exit-code)))))
 
+(defn lines-error-handler [job instance exit-code]
+  (if (> exit-code 0)
+    (if (= (get job :allow_failure) false)
+      (do
+        (lines-docker-rm instance)
+        (exit! exit-code)))))
+
 (defn lines-docker-run [job]
   (let [result (docker ["run"
                         "--detach"
@@ -38,17 +45,20 @@
     (do
       (output-line-action (str "docker run: " (get job :image)))
       (print-command result)
+      (if (> (nth result 2) 0)
+        (exit! (nth result 2)))
       (nth result 0))))
 
-(defn lines-docker-exec [instance command]
+(defn lines-docker-exec [job instance command]
   (let [result   (docker ["exec"
                           "--tty"
                           "--interactive"
                           instance
-                          command])]
+                          "sh" "-c '" command "'"])]
     (do
       (output-line-action (str "docker exec: " command))
-      (print-command result))))
+      (print-command result)
+      (lines-error-handler job instance (nth result 2)))))
 
 (defn lines-docker-rm [instance]
   (let [result (docker ["rm"
@@ -62,7 +72,7 @@
   (let [instance (lines-docker-run job)]
     (do
       (map (fn* [code-line]
-                (lines-docker-exec instance code-line))
+                (lines-docker-exec job instance code-line))
            (get job :script))
       (lines-docker-rm instance))))
 
@@ -80,13 +90,16 @@
 
 ; user area
 ; simple job
-(job {:name "test"
+(job {:name "test 1"
       :image "alpine"
       :method "docker"
-      :script ["apk add --no-cache curl"
+      :allow_failure true
+      :script ["ls / | grep mnt"
+               "exit 1"
+               "apk add --no-cache curl"
                "pwd"
                "ps -ef"
-               "ls"]})
+               "ls /"]})
 
 ; parallel job
 
@@ -105,4 +118,4 @@
                        "ps -ef"
                        "ls"]}])
 
-(parallel p-jobs)
+; (parallel p-jobs)

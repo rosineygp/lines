@@ -1091,7 +1091,10 @@ swap_BANG () {
     ANON["${atm}"]="${r}"
 }
 
-
+exit_BANG () {
+    local exit_code="${ANON["${1}"]}"; shift
+    exit "$exit_code"
+}
 
 # Namespace of core functions
 
@@ -1163,7 +1166,8 @@ declare -A core_ns=(
     [atom?]=atom?
     [deref]=deref
     [reset!]=reset_BANG
-    [swap!]=swap_BANG)
+    [swap!]=swap_BANG
+    [exit!]=exit_BANG)
 
 fi
 #!/usr/bin/env bash
