@@ -88,35 +88,3 @@
 
 (defn parallel [items]
   (pmap (fn* [item] (job item)) items))
-
-; user area
-; simple job
-(job {:name "test 1"
-      :image "alpine"
-      :method "docker"
-      :allow_failure true
-      :script ["ls / | grep mnt"
-               "exit 1"
-               "apk add --no-cache curl"
-               "pwd"
-               "ps -ef"
-               "ls /"]})
-
-; parallel job
-
-(def p-jobs [{:name "job1"
-              :image "alpine"
-              :method "docker"
-              :script ["apk add --no-cache curl"
-                       "pwd"
-                       "ps -ef"
-                       "ls"]}
-             {:name "job2"
-              :image "alpine"
-              :method "docker"
-              :script ["apk add --no-cache curl"
-                       "pwd"
-                       "ps -ef"
-                       "ls"]}])
-
-; (parallel p-jobs)
