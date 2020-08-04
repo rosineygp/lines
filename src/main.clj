@@ -50,6 +50,16 @@
         (exit! (nth result 2)))
       (nth result 0))))
 
+(defn lines-docker-cp-push [instance from to]
+  (let [result (docker ["cp"
+                         from
+                         (str instance ":" to)])]
+    (do
+      (output-line-action (str "docker cp: from " from " to " instance ":" to))
+      (print-command result)
+      (if (> (nth result 2) 0)
+        (exit! (nth result 2))))))
+
 (defn lines-docker-exec [job instance command]
   (let [result   (docker ["exec"
                           "--tty"
@@ -72,6 +82,7 @@
 (defn lines-docker-job [job]
   (let [instance (lines-docker-run job)]
     (do
+      (lines-docker-cp-push instance current-path "/repos" )
       (map (fn* [code-line]
                 (lines-docker-exec job instance code-line))
            (get job :script))
@@ -83,7 +94,6 @@
     (if (= (get item :method) "docker")
       (do
         (lines-docker-job item)))
-
     (output-line-banner (str "done: " (get item :name)))))
 
 (defn parallel [items]
