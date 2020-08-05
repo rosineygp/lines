@@ -40,6 +40,11 @@
   (let [result (docker ["run"
                         "--detach"
                         "--rm"
+                        (if (get job :variables)
+                          (apply join " " (map
+                                           (fn [key]
+                                             (str "--env '" key "=" (get (get job :variables) key) "'"))
+                                           (keys (get job :variables)))) "")
                         "--workdir" repos
                         (get job :image)
                         "sleep" ttl])]
@@ -52,8 +57,8 @@
 
 (defn lines-docker-cp-push [instance from to]
   (let [result (docker ["cp"
-                         from
-                         (str instance ":" to)])]
+                        from
+                        (str instance ":" to)])]
     (do
       (output-line-action (str "docker cp: from " from " to " instance ":" to))
       (print-command result)
@@ -82,7 +87,7 @@
 (defn lines-docker-job [job]
   (let [instance (lines-docker-run job)]
     (do
-      (lines-docker-cp-push instance current-path "/repos" )
+      (lines-docker-cp-push instance current-path "/repos")
       (map (fn* [code-line]
                 (lines-docker-exec job instance code-line))
            (get job :script))

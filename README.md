@@ -13,7 +13,9 @@ At root of project
 ## test
 
 ```bash
-./flk test/colors-test.clj
-./flk test/use-test.clj
+./flk test/job.clj
+./flk test/parallel.clj
 ./flk test/pmap-test.clj
+./flk test/use-test.clj
+./flk test/variables.clj
 ```
