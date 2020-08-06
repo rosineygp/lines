@@ -41,6 +41,7 @@
   (let [result (docker ["run"
                         "--detach"
                         "--rm"
+                        "--entrypoint" "''"
                         (if (= (get job :privileged) true)
                           (apply join " " ["--privileged"
                                            "--volume"
