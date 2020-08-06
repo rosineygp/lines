@@ -31,8 +31,9 @@
 
 (defn lines-error-handler [job instance exit-code]
   (if (> exit-code 0)
-    (if (= (get job :allow_failure) false)
+    (if (not (get job :allow_failure) true)
       (do
+        (println (bg-red (white (bold "JOB FAILED"))))
         (lines-docker-rm instance)
         (exit! exit-code)))))
 
@@ -66,11 +67,11 @@
         (exit! (nth result 2))))))
 
 (defn lines-docker-exec [job instance command]
-  (let [result   (docker ["exec"
-                          "--tty"
-                          "--interactive"
-                          instance
-                          "sh" "-c '" command "'"])]
+  (let [result (docker ["exec"
+                        "--tty"
+                        "--interactive"
+                        instance
+                        "sh" "-c '" command "'"])]
     (do
       (output-line-action (str "docker exec: " command))
       (print-command result)
