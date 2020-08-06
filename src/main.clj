@@ -41,6 +41,10 @@
   (let [result (docker ["run"
                         "--detach"
                         "--rm"
+                        (if (= (get job :privileged) true)
+                          (apply join " " ["--privileged"
+                                           "--volume"
+                                           "/var/run/docker.sock:/var/run/docker.sock"]) "")
                         (if (get job :variables)
                           (apply join " " (map
                                            (fn [key]
