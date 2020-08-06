@@ -16,6 +16,11 @@
 (defn str-date-time []
   (nth (date ["+'%Y-%m-%d %T'"]) 0))
 
+(defn str-slug [string]
+  (str-lower-case (reduce
+                   (fn [a b] (str-replace a b "-"))
+                   string [":" "." "/" "_"])))
+
 (defn output-line-action [action]
   (println-stderr (green action)))
 
