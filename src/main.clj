@@ -79,6 +79,23 @@
         (exit! (nth result 2)))
       (nth result 0))))
 
+(defn lines-docker-run-service [service]
+  (let [result (docker ["run"
+                        "--detach"
+                        "--rm"
+                        "--network-alias" (if (get service :alias)
+                                            (get service :alias)
+                                            (str-slug (get service :image)))
+                        (if (get service :entrypoint)
+                            (str "--entrypoint " (get service :entrypoint)) "")
+                        (get service :image)])]
+    (do
+      (output-line-action (str "docker service: " (get service :image)))
+      (print-command result)
+      (if (> (nth result 2) 0)
+        (exit! (nth result 2)))
+      (nth result 0))))
+
 (defn lines-docker-cp-push [instance from to]
   (let [result (docker ["cp"
                         from
@@ -109,13 +126,15 @@
       (print-command result))))
 
 (defn lines-docker-job [job]
-  (let [instance (lines-docker-run job)]
+  (let [services (if (get job :services) (do (map lines-docker-run-service (get job :services))))
+        instance (lines-docker-run job)]
     (do
       (lines-docker-cp-push instance current-path "/repos")
       (map (fn* [code-line]
                 (lines-docker-exec job instance code-line))
            (get job :script))
-      (lines-docker-rm instance))))
+      (lines-docker-rm instance)
+      (map lines-docker-rm services))))
 
 (defn job [item]
   (do
