@@ -4,9 +4,9 @@
       :image "alpine"
       :method "docker"
       :allow_failure false
-      :services [{:alias "nginx"
+      :services [{:alias "web1"
                   :image "nginx:latest"}
-                  {:image "redis"}]
-      :script ["ls -la"
-               "echo ola"
-               "sleep 60"]})
+                  {:image "nginx"}]
+      :script ["apk add curl --no-cache"
+               "curl nginx"
+               "curl web1"]})

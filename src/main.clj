@@ -19,7 +19,7 @@
 (defn str-slug [string]
   (str-lower-case (reduce
                    (fn [a b] (str-replace a b "-"))
-                   string [":" "." "/" "_"])))
+                   string [":" "." "/" "_" " "])))
 
 (defn output-line-action [action]
   (println-stderr (green action)))
@@ -55,10 +55,31 @@
         (lines-docker-rm instance)
         (exit! exit-code)))))
 
-(defn lines-docker-run [job]
+(defn lines-docker-network [job]
+  (let [network-name (str-slug (str (get job :name) (nth (date ["+%s%3N"]) 0)))
+        result (docker ["network"
+                        "create"
+                        network-name])]
+    (do
+      (output-line-action (str "docker network: " network-name))
+      (print-command result)
+      (if (> (nth result 2) 0)
+        (exit! (nth result 2)))
+      (nth result 0))))
+
+(defn lines-docker-network-rm [instance]
+  (let [result (docker ["network"
+                        "rm"
+                        instance])]
+    (do
+      (output-line-action (str "docker network rm: " instance))
+      (print-command result))))
+
+(defn lines-docker-run [job network]
   (let [result (docker ["run"
                         "--detach"
                         "--rm"
+                        "--network" network
                         "--entrypoint" "''"
                         (if (= (get job :privileged) true)
                           (apply join " " ["--privileged"
@@ -79,15 +100,21 @@
         (exit! (nth result 2)))
       (nth result 0))))
 
-(defn lines-docker-run-service [service]
+(defn lines-docker-run-service [service network]
   (let [result (docker ["run"
                         "--detach"
                         "--rm"
+                        "--network" network
                         "--network-alias" (if (get service :alias)
                                             (get service :alias)
                                             (str-slug (get service :image)))
+                        (if (get service :variables)
+                          (apply join " " (map
+                                           (fn [key]
+                                             (str "--env '" key "=" (get (get service :variables) key) "'"))
+                                           (keys (get service :variables)))) "")
                         (if (get service :entrypoint)
-                            (str "--entrypoint " (get service :entrypoint)) "")
+                          (str "--entrypoint " (get service :entrypoint)) "")
                         (get service :image)])]
     (do
       (output-line-action (str "docker service: " (get service :image)))
@@ -126,15 +153,20 @@
       (print-command result))))
 
 (defn lines-docker-job [job]
-  (let [services (if (get job :services) (do (map lines-docker-run-service (get job :services))))
-        instance (lines-docker-run job)]
+  (let [network (lines-docker-network job)
+        services (if (get job :services)
+                   (do
+                     (map (fn* [service]
+                               (lines-docker-run-service service network)) (get job :services))))
+        instance (lines-docker-run job network)]
     (do
       (lines-docker-cp-push instance current-path "/repos")
       (map (fn* [code-line]
                 (lines-docker-exec job instance code-line))
            (get job :script))
       (lines-docker-rm instance)
-      (map lines-docker-rm services))))
+      (map lines-docker-rm services)
+      (lines-docker-network-rm network))))
 
 (defn job [item]
   (do
