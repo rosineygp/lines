@@ -55,6 +55,11 @@
         (lines-docker-rm instance)
         (exit! exit-code)))))
 
+(defn lines-docker-error-instance [result]
+  (if (> (nth result 2) 0)
+    (exit! (nth result 2))
+    (nth result 0)))
+
 (defn lines-docker-network [job]
   (let [network-name (str-slug (str (get job :name) (nth (date ["+%s%3N"]) 0)))
         result (docker ["network"
@@ -97,9 +102,7 @@
       (trap! (str "docker rm -f " (nth result 0)) "EXIT")
       (output-line-action (str "docker run: " (get job :image)))
       (print-command result)
-      (if (> (nth result 2) 0)
-        (exit! (nth result 2)))
-      (nth result 0))))
+      (lines-docker-error-instance result))))
 
 (defn lines-docker-run-service [service network]
   (let [result (docker ["run"
@@ -121,9 +124,7 @@
       (trap! (str "docker rm -f " (nth result 0)) "EXIT")
       (output-line-action (str "docker service: " (get service :image)))
       (print-command result)
-      (if (> (nth result 2) 0)
-        (exit! (nth result 2)))
-      (nth result 0))))
+      (lines-docker-error-instance result))))
 
 (defn lines-docker-cp-push [instance from to]
   (let [result (docker ["cp"
@@ -132,8 +133,7 @@
     (do
       (output-line-action (str "docker cp: from " from " to " instance ":" to))
       (print-command result)
-      (if (> (nth result 2) 0)
-        (exit! (nth result 2))))))
+      (lines-docker-error-instance result))))
 
 (defn lines-docker-exec [job instance command]
   (let [result (docker ["exec"
