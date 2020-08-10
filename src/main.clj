@@ -94,6 +94,7 @@
                         (get job :image)
                         "sleep" ttl])]
     (do
+      (trap! (str "docker rm -f " (nth result 0)) "EXIT")
       (output-line-action (str "docker run: " (get job :image)))
       (print-command result)
       (if (> (nth result 2) 0)
@@ -117,6 +118,7 @@
                           (str "--entrypoint " (get service :entrypoint)) "")
                         (get service :image)])]
     (do
+      (trap! (str "docker rm -f " (nth result 0)) "EXIT")
       (output-line-action (str "docker service: " (get service :image)))
       (print-command result)
       (if (> (nth result 2) 0)
@@ -160,6 +162,7 @@
                                (lines-docker-run-service service network)) (get job :services))))
         instance (lines-docker-run job network)]
     (do
+      (trap! (str "docker network rm " network) "EXIT")
       (lines-docker-cp-push instance current-path "/repos")
       (map (fn* [code-line]
                 (lines-docker-exec job instance code-line))

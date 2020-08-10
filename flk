@@ -1096,6 +1096,13 @@ exit_BANG () {
     exit "$exit_code"
 }
 
+trap_BANG() {
+    local _trap="${ANON["${1}"]}"; shift
+    local _action="${ANON["${1}"]}"; shift
+    # > /dev/null 2>&1
+    trap "${_trap} > /dev/null 2>&1" "$_action"
+}
+
 # Namespace of core functions
 
 declare -A core_ns=(
@@ -1167,7 +1174,8 @@ declare -A core_ns=(
     [deref]=deref
     [reset!]=reset_BANG
     [swap!]=swap_BANG
-    [exit!]=exit_BANG)
+    [exit!]=exit_BANG
+    [trap!]=trap_BANG)
 
 fi
 #!/usr/bin/env bash
