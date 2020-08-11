@@ -1596,14 +1596,14 @@ _fref "remove-hashbang" _remove_hashbang
 
 _fref "last" _last
 
-_join () {
+_str_join () {
     local separator="${ANON["${1}"]}"; shift
     local res="${ANON["${1}"]}"; shift
     for x in "${@}"; do _pr_str "${x}"; res="${res}${separator}${r}"; done
     _string "${res}"
 }
 
-_fref "join" _join
+_fref "str-join" _str_join
 
 REP "(def! load-file-without-hashbang (fn* (f) (eval (read-string (str \"(do \" (remove-hashbang (slurp f) ) \"\nnil)\")))))"
 read -d "" __FLECK__REPCAPTURE << __FLECK__INLINEMALFILE

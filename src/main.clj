@@ -61,10 +61,10 @@
     (nth result 0)))
 
 (defn lines-traps [list]
-  (trap! (str "{ " (apply join "; " (map (fn [item]
-                                           (if (= (get item :type) "container")
-                                             (str "docker rm -f " (get item :id))
-                                             (str "docker network rm " (get item :id)))) list)) "; }") "EXIT"))
+  (trap! (str "{ " (apply str-join "; " (map (fn [item]
+                                               (if (= (get item :type) "container")
+                                                 (str "docker rm -f " (get item :id))
+                                                 (str "docker network rm " (get item :id)))) list)) "; }") "EXIT"))
 
 (defn lines-docker-network [job]
   (let [network-name (str-slug (str (get job :name) (nth (date ["+%s%3N"]) 0)))
@@ -93,14 +93,14 @@
                         "--network" network
                         "--entrypoint" "''"
                         (if (= (get job :privileged) true)
-                          (apply join " " ["--privileged"
-                                           "--volume"
-                                           "/var/run/docker.sock:/var/run/docker.sock"]) "")
+                          (apply str-join " " ["--privileged"
+                                               "--volume"
+                                               "/var/run/docker.sock:/var/run/docker.sock"]) "")
                         (if (get job :variables)
-                          (apply join " " (map
-                                           (fn [key]
-                                             (str "--env '" key "=" (get (get job :variables) key) "'"))
-                                           (keys (get job :variables)))) "")
+                          (apply str-join " " (map
+                                               (fn [key]
+                                                 (str "--env '" key "=" (get (get job :variables) key) "'"))
+                                               (keys (get job :variables)))) "")
                         "--workdir" repos
                         (get job :image)
                         "sleep" ttl])]
@@ -118,7 +118,7 @@
                                             (get service :alias)
                                             (str-slug (get service :image)))
                         (if (get service :variables)
-                          (apply join " " (map
+                          (apply str-join " " (map
                                            (fn [key]
                                              (str "--env '" key "=" (get (get service :variables) key) "'"))
                                            (keys (get service :variables)))) "")
