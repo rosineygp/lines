@@ -60,6 +60,12 @@
     (exit! (nth result 2))
     (nth result 0)))
 
+(defn lines-traps [list]
+  (trap! (str "{ " (apply join "; " (map (fn [item]
+                                           (if (= (get item :type) "container")
+                                             (str "docker rm -f " (get item :id))
+                                             (str "docker network rm " (get item :id)))) list)) "; }") "EXIT"))
+
 (defn lines-docker-network [job]
   (let [network-name (str-slug (str (get job :name) (nth (date ["+%s%3N"]) 0)))
         result (docker ["network"
@@ -99,7 +105,6 @@
                         (get job :image)
                         "sleep" ttl])]
     (do
-      (trap! (str "docker rm -f " (nth result 0)) "EXIT")
       (output-line-action (str "docker run: " (get job :image)))
       (print-command result)
       (lines-docker-error-instance result))))
@@ -162,7 +167,9 @@
                                (lines-docker-run-service service network)) (get job :services))))
         instance (lines-docker-run job network)]
     (do
-      (trap! (str "docker network rm " network) "EXIT")
+      (lines-traps (concat [{:id instance :type "container"}]
+                           (map (fn [item] {:id item :type "container"}) services)
+                           [{:id network :type "network"}]))
       (lines-docker-cp-push instance current-path "/repos")
       (map (fn* [code-line]
                 (lines-docker-exec job instance code-line))
