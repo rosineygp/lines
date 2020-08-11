@@ -145,7 +145,10 @@
                         "--tty"
                         "--interactive"
                         instance
-                        "sh" "-c '" command "'"])]
+                        (apply str-join " " (if (get job :entrypoint)
+                                              (get job :entrypoint)
+                                              ["sh" "-c"]))
+                        "'" command "'"])]
     (do
       (output-line-action (str "docker exec: " command))
       (print-command result)
