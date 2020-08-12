@@ -59,7 +59,7 @@
                                                  (str "docker network rm " (get item :id)))) list)) "; }") "EXIT"))
 
 (defn lines-docker-network [job]
-  (let [network-name (str-slug (str (get job :name) (nth (date ["+%s%3N"]) 0)))
+  (let [network-name (str-slug (str (get job :name) (time-ms)))
         result (docker ["network"
                         "create"
                         network-name])]
