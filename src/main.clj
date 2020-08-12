@@ -84,6 +84,7 @@
                         "--rm"
                         "--network" network
                         "--entrypoint" "''"
+                        "--env" (str "'BRANCH_NAME=" (branch-or-tag-name) "'")
                         (if (= (get job :privileged) true)
                           (apply str-join " " ["--privileged"
                                                "--volume"
@@ -109,6 +110,7 @@
                         "--network-alias" (if (get service :alias)
                                             (get service :alias)
                                             (str-slug (get service :image)))
+                        "--env" (str "'BRANCH_NAME=" (branch-or-tag-name) "'")
                         (if (get service :variables)
                           (apply str-join " " (map
                                            (fn [key]
