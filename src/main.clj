@@ -64,7 +64,7 @@
                         "create"
                         network-name])]
     (do
-      (output-line-action (str "docker network: " network-name))
+      (output-line-action (str "docker network: " (white network-name)))
       (print-command result)
       (if (> (nth result 2) 0)
         (exit! (nth result 2)))
@@ -75,7 +75,7 @@
                         "rm"
                         instance])]
     (do
-      (output-line-action (str "docker network rm: " instance))
+      (output-line-action (str "docker network rm: " (white (str-subs instance 0 12))))
       (print-command result))))
 
 (defn lines-docker-run [job network]
@@ -98,7 +98,7 @@
                         (get job :image)
                         "sleep" ttl])]
     (do
-      (output-line-action (str "docker run: " (get job :image)))
+      (output-line-action (str "docker run: " (white (get job :image))))
       (print-command result)
       (lines-docker-error-instance result))))
 
@@ -121,7 +121,7 @@
                         (get service :image)])]
     (do
       (trap! (str "docker rm -f " (nth result 0)) "EXIT")
-      (output-line-action (str "docker service: " (get service :image)))
+      (output-line-action (str "docker service: " (white (get service :image))))
       (print-command result)
       (lines-docker-error-instance result))))
 
@@ -130,7 +130,7 @@
                         from
                         (str instance ":" to)])]
     (do
-      (output-line-action (str "docker cp: from " from " to " instance ":" to))
+      (output-line-action (str "docker cp: " (white "from " from " to " (str-subs instance 0 12) ":" to)))
       (print-command result)
       (lines-docker-error-instance result))))
 
@@ -154,7 +154,7 @@
                         "--force"
                         instance])]
     (do
-      (output-line-action (str "docker rm: " instance))
+      (output-line-action (str "docker rm: " (white (str-subs instance 0 12))))
       (print-command result))))
 
 (defn lines-docker-job-rm [instance services network]
@@ -178,7 +178,7 @@
       (try*
        (map (fn [code-line]
                  (do
-                   (output-line-action (str "docker exec: " code-line))
+                   (output-line-action (str "docker exec: " (white code-line)))
                    (lines-docker-exec! job instance code-line)))
             (get job :script))
        (catch* ex
