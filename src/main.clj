@@ -165,7 +165,7 @@
   (let [network (lines-docker-network job)
         services (if (get job :services)
                    (do
-                     (map (fn* [service]
+                     (map (fn [service]
                                (lines-docker-run-service service network)) (get job :services))))
         instance (lines-docker-run job network)]
     (do
@@ -174,7 +174,7 @@
                            [{:id network :type "network"}]))
       (lines-docker-cp-push instance current-path "/repos")
       (try*
-       (map (fn* [code-line]
+       (map (fn [code-line]
                  (do
                    (output-line-action (str "docker exec: " code-line))
                    (lines-docker-exec! job instance code-line)))
@@ -200,4 +200,4 @@
     (output-line-banner (str "done: " (get item :name)))))
 
 (defn parallel [items]
-  (pmap (fn* [item] (job item)) items))
+  (pmap (fn [item] (job item)) items))
