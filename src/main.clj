@@ -134,6 +134,15 @@
       (print-command result)
       (lines-docker-error-instance result))))
 
+(defn lines-docker-cp-pull [instance from]
+  (let [result (docker ["cp"
+                        (str instance ":" repos "/" from)
+                        "."])]
+    (do
+      (output-line-action (str "docker cp: " (white (str "from " (str-subs instance 0 12) ":" repos "/" from " to "  "."))))
+      (print-command result)
+      (lines-docker-error-instance result))))
+
 (defn lines-docker-exec! [job instance command]
   (let [result (docker ["exec"
                         "--tty"
@@ -185,6 +194,9 @@
                (let [exit-code (last (str-split ex " "))]
                  (do
                    (println (bg-red (white (bold "JOB FAILED"))))))))
+
+      (map (fn [path]
+             (lines-docker-cp-pull instance path)) (get (get job :artifacts) :paths))
       (lines-docker-job-rm instance
                            services
                            network))))
