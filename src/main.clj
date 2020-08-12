@@ -168,7 +168,7 @@
         services (if (get job :services)
                    (do
                      (map (fn [service]
-                               (lines-docker-run-service service network)) (get job :services))))
+                            (lines-docker-run-service service network)) (get job :services))))
         instance (lines-docker-run job network)]
     (do
       (lines-traps (concat [{:id instance :type "container"}]
@@ -177,18 +177,14 @@
       (lines-docker-cp-push instance current-path "/repos")
       (try*
        (map (fn [code-line]
-                 (do
-                   (output-line-action (str "docker exec: " (white code-line)))
-                   (lines-docker-exec! job instance code-line)))
+              (do
+                (output-line-action (str "docker exec: " (white code-line)))
+                (lines-docker-exec! job instance code-line)))
             (get job :script))
        (catch* ex
                (let [exit-code (last (str-split ex " "))]
                  (do
-                   (println (bg-red (white (bold "JOB FAILED"))))
-                   (lines-docker-job-rm instance
-                                        services
-                                        network)
-                   (exit! exit-code)))))
+                   (println (bg-red (white (bold "JOB FAILED"))))))))
       (lines-docker-job-rm instance
                            services
                            network))))
