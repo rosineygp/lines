@@ -47,14 +47,6 @@
     (if (= (empty? err) false) (println-stderr (red err)))
     (if (number? exit-code) (println-stderr (magenta exit-code)))))
 
-(defn lines-error-handler [job instance exit-code]
-  (if (> exit-code 0)
-    (if (not (get job :allow_failure) true)
-      (do
-        (println (bg-red (white (bold "JOB FAILED"))))
-        (lines-docker-rm instance)
-        (exit! exit-code)))))
-
 (defn lines-docker-error-instance [result]
   (if (> (nth result 2) 0)
     (exit! (nth result 2))
@@ -140,7 +132,7 @@
       (print-command result)
       (lines-docker-error-instance result))))
 
-(defn lines-docker-exec [job instance command]
+(defn lines-docker-exec! [job instance command]
   (let [result (docker ["exec"
                         "--tty"
                         "--interactive"
@@ -150,9 +142,10 @@
                                               ["sh" "-c"]))
                         "'" command "'"])]
     (do
-      (output-line-action (str "docker exec: " command))
       (print-command result)
-      (lines-error-handler job instance (nth result 2)))))
+      (if (> (nth result 2) 0)
+        (throw (str "exit-code " (nth result 2)))
+        result))))
 
 (defn lines-docker-rm [instance]
   (let [result (docker ["rm"
@@ -161,6 +154,12 @@
     (do
       (output-line-action (str "docker rm: " instance))
       (print-command result))))
+
+(defn lines-docker-job-rm [instance services network]
+  (do
+    (lines-docker-rm instance)
+    (map lines-docker-rm services)
+    (lines-docker-network-rm network)))
 
 (defn lines-docker-job [job]
   (let [network (lines-docker-network job)
@@ -174,12 +173,23 @@
                            (map (fn [item] {:id item :type "container"}) services)
                            [{:id network :type "network"}]))
       (lines-docker-cp-push instance current-path "/repos")
-      (map (fn* [code-line]
-                (lines-docker-exec job instance code-line))
-           (get job :script))
-      (lines-docker-rm instance)
-      (map lines-docker-rm services)
-      (lines-docker-network-rm network))))
+      (try*
+       (map (fn* [code-line]
+                 (do
+                   (output-line-action (str "docker exec: " code-line))
+                   (lines-docker-exec! job instance code-line)))
+            (get job :script))
+       (catch* ex
+               (let [exit-code (last (str-split ex " "))]
+                 (do
+                   (println (bg-red (white (bold "JOB FAILED"))))
+                   (lines-docker-job-rm instance
+                                        services
+                                        network)
+                   (exit! exit-code)))))
+      (lines-docker-job-rm instance
+                           services
+                           network))))
 
 (defn job [item]
   (do
