@@ -130,7 +130,7 @@
                         from
                         (str instance ":" to)])]
     (do
-      (output-line-action (str "docker cp: " (white "from " from " to " (str-subs instance 0 12) ":" to)))
+      (output-line-action (str "docker cp: " (white (str "from " from " to " (str-subs instance 0 12) ":" to))))
       (print-command result)
       (lines-docker-error-instance result))))
 
