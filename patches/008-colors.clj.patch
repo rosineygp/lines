@@ -1,0 +1,12 @@
+diff --git a/src/includes/colors.clj b/src/includes/colors.clj
+index 1af03cf..e93028b 100644
+--- a/src/includes/colors.clj
++++ b/src/includes/colors.clj
+@@ -1,6 +1,6 @@
+ (defn colors-escape-code
+   [i]
+-  (str "\033[" i "m"))
++  (str "\\\\033[" i "m"))
+ 
+ (defn colors-reset [] (colors-escape-code 0))
+ 
