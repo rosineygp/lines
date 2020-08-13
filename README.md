@@ -78,8 +78,7 @@ A job is defined in a `ci.clj` file
              :entrypoint "string"}]
  :script ["string"
           "string"
-          "string"]
- }
+          "string"]}
 ```
 
 ## build
@@ -90,7 +89,7 @@ A job is defined in a `ci.clj` file
 
 > generate dist/lines
 
-## run
+## run dev
 
 At root of project
 
