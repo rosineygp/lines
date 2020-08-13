@@ -1,0 +1,27 @@
+(load-file-without-hashbang "src/main.clj")
+
+(job {:name "build"
+      :method "docker"
+      :image "ubuntu"
+      :artifacts {:paths ["dist"]}
+      :script ["apt-get update"
+               "apt-get install curl patch -y"
+               "rm -rf dist"
+               "mkdir dist"
+               "curl https://chr15m.github.io/flk/flk > dist/flk"
+               "patch -i patches/001-println.flk.patch -u dist/flk"
+               "patch -i patches/002-join.flk.patch -u dist/flk"
+               "patch -i patches/003-pmap.flk.patch -u dist/flk"
+               "patch -i patches/004-exit.flk.patch -u dist/flk"
+               "patch -i patches/005-trap.flk.patch -u dist/flk"
+               "patch -i patches/006-str_join.flk.patch -u dist/flk"
+               "patch -i patches/007-str_subs.flk.patch -u dist/flk"
+               "grep -v load-file-without-hashbang src/includes/colors.clj > dist/combined.clj"
+               "patch -i patches/008-colors.clj.patch -u dist/combined.clj"
+               "grep -v load-file-without-hashbang src/includes/use.clj >> dist/combined.clj"
+               "grep -v load-file-without-hashbang src/main.clj >> dist/combined.clj"
+               "echo \"\n__FLECK__INLINEMALFILE\n\" >> dist/combined.clj"
+               "cd dist && sed -e \"/^__FLECK__INLINEMALFILE/r combined.clj\" flk > lines"
+               "sed -i \"0,/^__FLECK__INLINEMALFILE/{/^__FLECK__INLINEMALFILE/d;}\" dist/lines"
+               "chmod +x dist/lines"
+               "rm dist/combined.clj dist/flk"]})
