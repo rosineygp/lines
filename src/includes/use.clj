@@ -13,7 +13,7 @@
        (do
          (command? list)
          (map (fn* [cmd]
-                   `(defn ~cmd [args]
+                   (quasiquote (defn ~cmd [args]
                       (if (vector? args)
                         (sh! (str ~cmd " " (apply str-join " " args)))
-                        (sh! (str ~cmd))))) list))))
+                        (sh! (str ~cmd)))))) list))))

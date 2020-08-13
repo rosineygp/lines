@@ -30,11 +30,11 @@
 (defmacro! colors-make
   (fn* [list]
        (map (fn* [color]
-                 `(defn ~color [string]
+                 (quasiquote (defn ~color [string]
                     (str
                      (colors-escape-code (get colors-code ~color))
                      string
-                     (colors-reset)))) list)))
+                     (colors-reset))))) list)))
 
 (colors-make ["gray"
               "red"
