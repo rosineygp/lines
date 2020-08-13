@@ -5,8 +5,8 @@
          (let [exist? (nth (sh! (str "command -v " cmd)) 2)]
            (if (> exist? 0)
              (do
-               (println "use command failed: '" cmd "' not found!")
-               (exit! exist?)) true))) list))
+               (println-stderr "\033[31muse command failed: '" cmd "' not found!\033[0m")
+               (throw (str "exit-code " exist?)) true)))) list))
 
 (defmacro! use
   (fn* [list]
