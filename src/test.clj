@@ -9,14 +9,14 @@
       f
       (if (= @exit-code 0)
         (do
-          (println (str (green (str "[ " name  " ]")) 
+          (println (str "\033[32m[ " name  " ]\033[0m")
             " asserts: " @asserts "/" (- @asserts @exit-code) 
-            ", time elapsed: " (- (time-ms) start) "ms\n"))
+            ", time elapsed: " (- (time-ms) start) "ms\n")
           (reset! asserts 0))
         (do
-          (println (str (red (str "[ " name  " ]")) 
+          (println (str "\033[31m[ " name  " ]\033[0m")
             " asserts: " @asserts "/" (- @asserts @exit-code) 
-            ", time elapsed: " (- (time-ms) start) "ms\n"))
+            ", time elapsed: " (- (time-ms) start) "ms\n")
           (exit! @exit-code))))))
 
 (defn testing [msg f]
@@ -24,10 +24,10 @@
     (swap! asserts inc)
     (println (if f
                 (do
-                  (green "[   ok   ]"))
+                  (str "\033[32m[   ok   ]\033[0m"))
                 (do
                   (swap! exit-code inc)
-                  (red "[ failed ]"))) msg)))
+                  (str "\033[31m[ failed ]\033[0m"))) msg)))
 
 (defn is [comparison]
   (= comparison true))
