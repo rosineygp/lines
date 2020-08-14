@@ -29,11 +29,11 @@
 
 (defn branch-or-tag-name []
   (cond
-    (= (env "GITHUB_ACTIONS") "true") (env "GITHUB_REF")
-    (= (env "GITLAB_CI") "true") (last (str-split (env "CI_COMMIT_REF_NAME") "/"))
-    (string? (env "JENKINS_URL") nil) (env "GIT_BRANCH")
+    (= (env "GITHUB_ACTIONS") "true") (last (str-split (env "GITHUB_REF") "/"))
+    (= (env "GITLAB_CI") "true") (env "CI_COMMIT_REF_NAME")
+    (= (string? (env "JENKINS_URL")) true) (env "GIT_BRANCH")
     (= (env "TRAVIS") "true") (env "TRAVIS_BRANCH")
-    (= (env "CIRCLECI") "true") (if (string? (env "CIRCLE_TAG") "") (env "CIRCLE_TAG") (env "CIRCLE_BRANCH"))
+    (= (env "CIRCLECI") "true") (if (string? (env "CIRCLE_TAG")) (env "CIRCLE_TAG") (env "CIRCLE_BRANCH"))
     (= (nth (git ["rev-parse"
                   "--is-inside-work-tree"]) 0) "true") (nth (git ["rev-parse"
                                                                   "--abbrev-ref"
