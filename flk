@@ -1536,6 +1536,19 @@ _env() {
 
 _fref "env" _env
 
+_unset() {
+    local key
+    [ "${1}" != "" ] && key="${ANON["${1}"]}"; shift
+
+    if [ "${key}" != "" ]
+    then
+        unset "${key}"
+    fi
+    r="${__nil}"
+}
+
+_fref "unset" _unset
+
 _sh_env() {
   local args=""
   local cmd="${ANON["${1}"]}"; shift
