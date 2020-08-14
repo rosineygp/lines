@@ -9,12 +9,12 @@
       f
       (if (= @exit-code 0)
         (do
-          (println (str "\033[32m[ " name  " ]\033[0m")
-                   " asserts: " @asserts "/" (- @asserts @exit-code) "\n")
+          (println (str "\033[32m[ " name  " ]\033[0m"
+                   " asserts: " @asserts "/" (- @asserts @exit-code) "\n"))
           (reset! asserts 0))
         (do
-          (println (str "\033[31m[ " name  " ]\033[0m")
-                   " asserts: " @asserts "/" (- @asserts @exit-code) "\n")
+          (println (str "\033[31m[ " name  " ]\033[0m"
+                   " asserts: " @asserts "/" (- @asserts @exit-code) "\n"))
           (exit! @exit-code))))))
 
 (defn testing [msg f]
