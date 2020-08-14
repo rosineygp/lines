@@ -16,6 +16,7 @@
                "patch -i patches/005-trap.flk.patch -u dist/flk"
                "patch -i patches/006-str_join.flk.patch -u dist/flk"
                "patch -i patches/007-str_subs.flk.patch -u dist/flk"
+               "patch -i patches/009-unset.flk.patch -u dist/flk"
                "grep -v load-file-without-hashbang src/includes/colors.clj > dist/combined.clj"
                "patch -i patches/008-colors.clj.patch -u dist/combined.clj"
                "grep -v load-file-without-hashbang src/includes/use.clj >> dist/combined.clj"

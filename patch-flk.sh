@@ -23,6 +23,7 @@ patch -i patches/004-exit.flk.patch -u .flk
 patch -i patches/005-trap.flk.patch -u .flk
 patch -i patches/006-str_join.flk.patch -u .flk
 patch -i patches/007-str_subs.flk.patch -u .flk
+patch -i patches/009-unset.flk.patch -u .flk
 
 chmod +x .flk
 mv .flk flk
