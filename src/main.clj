@@ -2,6 +2,7 @@
 (load-file-without-hashbang "src/includes/colors.clj")
 (load-file-without-hashbang "src/core.clj")
 (load-file-without-hashbang "src/docker.clj")
+(load-file-without-hashbang "src/shell.clj")
 
 (use ["pwd"
       "pwd"
@@ -15,12 +16,14 @@
 (def ttl 3600)
 
 (defn job [item]
-  (do
-    (output-line-banner (str "begin: " (get item :name)))
-    (if (= (get item :method) "docker")
-      (do
-        (lines-docker-job item)))
-    (output-line-banner (str "done: " (get item :name)))))
+  (let [method (get item :method)]
+    (do
+      (output-line-banner (str "begin: " (get item :name)))
+      (cond
+        (= method "docker") (do (lines-docker-job item))
+        (= method "shell") (do (lines-shell-job item)))
+
+      (output-line-banner (str "done: " (get item :name))))))
 
 (defn parallel [items]
   (pmap (fn [item] (job item)) items))
