@@ -12,6 +12,9 @@
 (defn output-line-banner [name]
   (println-stderr (str (bg-blue (bold (white (str  name " > " (str-date-time))))))))
 
+(defn lines-output-error [message]
+  (println-stderr (str (bg-red (bold (white message))))))
+
 (defn branch-or-tag-name []
   (cond
     (= (env "GITHUB_ACTIONS") "true") (last (str-split (env "GITHUB_REF") "/"))
