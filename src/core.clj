@@ -32,12 +32,12 @@
     (if (= (empty? err) false) (println-stderr (red err)))
     (if (number? exit-code) (println-stderr (magenta exit-code)))))
 
-(defn throw-command [result]
+(defn lines-throw-command [result]
   (if (> (nth result 2) 0)
     (throw (apply str-join "," [(apply str-join "=" ["exit-code" (nth result 2)])
                                 (apply str-join "=" ["message" "Exit code greater than 0."])])) result))
 
-(defn throw-split [string]
+(defn lines-throw-split [string]
   (reduce (fn [a b]
             (assoc a (first (keys b)) (first (vals b)))) {}
           (map (fn [i]
