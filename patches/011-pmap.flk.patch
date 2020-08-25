@@ -1,0 +1,37 @@
+--- flk2	2020-08-25 16:28:35.904940738 +0000
++++ flk	2020-08-25 14:53:26.422418247 +0000
+@@ -388,8 +388,8 @@
+             eval ${f%%@*} "${v}" "${@}" 
+             [[ "${__ERROR}" ]] && r= && return 1;
+ 
+-            # send result to shared memory
+-            echo "${index} ${r} \"${ANON["${r}"]}\"" >> "/dev/shm/pmap_${pmap_id}"
++            str "${r}"
++            echo -n "\"${ANON["${r}"]}\"" > "/dev/shm/_flk_pmap_${pmap_id}_${index}"
+         ) &
+ 
+         ((index++))
+@@ -402,17 +402,14 @@
+ 
+     # wait for inital threads
+     wait
+-    
+-    while  IFS= read -r line; do
+-        declare -a _array_line="(${line})"
+ 
+-        _obj_type "${_array_line[1]}"
+-        eval "_${r}" "${_array_line[2]}"
++    index=0
++    for v in ${items}; do
++        READ_STR "$(</dev/shm/_flk_pmap_${pmap_id}_${index})"
+         _conj! "${new_seq}" "${r}";
+-        
+-    done < <(sort -n "/dev/shm/pmap_${pmap_id}")
+-    # rm "/dev/shm/pmap_${pmap_id}"
+-
++        unlink "/dev/shm/_flk_pmap_${pmap_id}_${index}"
++        ((index++))
++    done
+     r="${new_seq}"
+ }
+ 
