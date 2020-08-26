@@ -4,7 +4,8 @@
     ""))
 
 (defn lines-shell-exec [job command]
-  (let [sudo (lines-shell-sudo job)
+  (let [start (time-ms)
+        sudo (lines-shell-sudo job)
         str-cmd (apply str-join " " [(apply str-join " " (if (get job :entrypoint)
                                                            (get job :entrypoint)
                                                            ["bash" "-c"]))
@@ -19,10 +20,11 @@
                                      sudo
                                      command
                                      "'"])
-        result (sh! str-cmd)]
+        result (sh! str-cmd)
+        finished (time-ms)]
     (do
       (lines-throw-command result)
-      (lines-hash-command result str-cmd))))
+      (lines-hash-command start str-cmd result finished))))
 
 (defn lines-shell-job [job]
   (do

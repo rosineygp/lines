@@ -48,8 +48,10 @@
                    (do
                      (hash-map (keyword (nth key-val 0)) (nth key-val 1))))) (str-split string ","))))
 
-(defn lines-hash-command [result str-cmd]
-  {:str-cmd str-cmd
+(defn lines-hash-command [start str-cmd result finished]
+  {:start start
+   :str-cmd str-cmd
    :stdout (nth result 0)
    :stderr (nth result 1)
-   :exit-code (nth result 2)})
+   :exit-code (nth result 2)
+   :finished finished})
