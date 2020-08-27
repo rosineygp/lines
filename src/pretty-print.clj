@@ -16,7 +16,7 @@
        (str (red "exit-code:") " " (get line :exit-code) "\n"
             (blue "time:") " " (- (get line :finished) (get line :start)) " ms\n")))
 
-(defn lines-pp-default [result]
+(defn lines-pp [result]
   (println
    (str (lines-pp-hr)
         (magenta "job:") " " (get result :name) "\n"

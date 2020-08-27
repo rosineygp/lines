@@ -49,13 +49,16 @@
                 (catch* ex
                         (let [error (lines-throw-split ex)]
                           (throw (str "exit-code=" (get error :exit-code) ",message=Job " (get item :name) " failed.")))))
-        pipestatus (map (fn [x] (get x :exit-code)) script)]
-    {:name (get item :name)
-     :start start
-     :script script
-     :finished (time-ms)
-     :pipestatus pipestatus
-     :status (lines-job-status pipestatus)}))
+        pipestatus (map (fn [x] (get x :exit-code)) script)
+        result {:name (get item :name)
+                :start start
+                :script script
+                :finished (time-ms)
+                :pipestatus pipestatus
+                :status (lines-job-status pipestatus)}]
+    (do
+      (lines-pp result)
+      result)))
 
 (defn parallel [items]
   (pmap (fn [item] (job item)) items))
