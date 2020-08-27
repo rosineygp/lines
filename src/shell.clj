@@ -3,10 +3,10 @@
     "sudo"
     ""))
 
-(defn lines-shell-exec [job command]
+(defn lines-shell-exec [job raw-cmd]
   (let [start (time-ms)
         sudo (lines-shell-sudo job)
-        str-cmd (apply str-join " " [(apply str-join " " (if (get job :entrypoint)
+        cmd (apply str-join " " [(apply str-join " " (if (get job :entrypoint)
                                                            (get job :entrypoint)
                                                            ["bash" "-c"]))
                                      "'"
@@ -18,17 +18,17 @@
                                                             (keys (get job :variables)))) "")
                                      ";"
                                      sudo
-                                     command
+                                     raw-cmd
                                      "'"])
-        result (sh! str-cmd)
+        result (sh! cmd)
         finished (time-ms)]
     (do
       (lines-throw-command result)
-      (lines-hash-command start str-cmd result finished))))
+      (lines-task-obj start raw-cmd cmd result finished))))
 
 (defn lines-shell-job [job]
   (do
-    (map (fn [command]
+    (map (fn [cmd]
            (do
-             (lines-shell-exec job command)))
+             (lines-shell-exec job cmd)))
          (get job :script))))

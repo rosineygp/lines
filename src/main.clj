@@ -1,6 +1,7 @@
 (load-file-without-hashbang "src/includes/use.clj")
 (load-file-without-hashbang "src/includes/colors.clj")
 (load-file-without-hashbang "src/core.clj")
+(load-file-without-hashbang "src/pretty-print.clj")
 (load-file-without-hashbang "src/docker.clj")
 (load-file-without-hashbang "src/shell.clj")
 (load-file-without-hashbang "src/ssh.clj")
@@ -34,20 +35,20 @@
         (throw "exit-code=1,message=Error in all attempts.")))))
 
 (defn job [item]
-  (let [method (get item :method)
+  (let [start (time-ms)
+        method (get item :method)
         retries (if (get item :retries)
                   (atom (if (> (get item :retries) max-attempts) max-attempts (get item :retries)))
-                  (atom 1))]
-    (do
-      (output-line-banner (str "begin: " (get item :name)))
-      (try*
-       (lines-job-method item retries)
-       (catch* ex
-               (let [error (lines-throw-split ex)]
-                 (do
-                   (lines-output-error (get error :message))
-                   (exit! (get error :exit-code))))))
-      (output-line-banner (str "done: " (get item :name))))))
+                  (atom 1))
+        script (try*
+                (lines-job-method item retries)
+                (catch* ex
+                        (let [error (lines-throw-split ex)]
+                          (throw (str "exit-code=" (get error :exit-code) ",message=Job " (get item :name) " failed.")))))]
+    {:name (get item :name)
+     :start start
+     :script script
+     :finished (time-ms)}))
 
 (defn parallel [items]
   (pmap (fn [item] (job item)) items))
