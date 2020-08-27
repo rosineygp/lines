@@ -18,6 +18,10 @@
 (def ttl 3600)
 (def max-attempts 3)
 
+(defn lines-job-status [pipestatus]
+  (let [exit-sum (reduce (fn [a b] (+ a b)) 0 pipestatus)]
+    (if (= exit-sum 0) "ok" "failed")))
+
 (defn lines-job-method [job retries]
   (let [method (get job :method)]
     (do
@@ -44,11 +48,14 @@
                 (lines-job-method item retries)
                 (catch* ex
                         (let [error (lines-throw-split ex)]
-                          (throw (str "exit-code=" (get error :exit-code) ",message=Job " (get item :name) " failed.")))))]
+                          (throw (str "exit-code=" (get error :exit-code) ",message=Job " (get item :name) " failed.")))))
+        pipestatus (map (fn [x] (get x :exit-code)) script)]
     {:name (get item :name)
      :start start
      :script script
-     :finished (time-ms)}))
+     :finished (time-ms)
+     :pipestatus pipestatus
+     :status (lines-job-status pipestatus)}))
 
 (defn parallel [items]
   (pmap (fn [item] (job item)) items))
