@@ -8,12 +8,15 @@
 (defn lines-shell-exec [job raw-cmd]
   (let [start (time-ms)
         sudo (lines-shell-sudo job)
+        branch (branch-or-tag-name)
         cmd  (apply str-join " " [sudo
                                   (apply str-join " " (if (get job :entrypoint)
                                                         (get job :entrypoint)
                                                         ["bash" "-c"]))
                                   "$'"
-                                  (str "export BRANCH_NAME=\"" (branch-or-tag-name) "\"")
+                                  "export"
+                                  (str-shell-variable "BRANCH_NAME" branch)
+                                  (str-shell-variable "BRANCH_NAME_SLUG" (str-slug branch))
                                   (if (get job :variables)
                                     (apply str-join " " (map
                                                          (fn [key]

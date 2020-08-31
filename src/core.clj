@@ -11,6 +11,9 @@
    (fn [a b] (str-replace a b (str "\\" b)))
    string ["'"]))
 
+(defn str-shell-variable [key value]
+  (str key "=\"" value "\""))
+
 (defn output-line-action [action]
   (println-stderr (green action)))
 
