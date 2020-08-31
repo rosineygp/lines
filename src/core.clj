@@ -11,8 +11,25 @@
    (fn [a b] (str-replace a b (str "\\" b)))
    string ["'"]))
 
+(defn str-shell-sudo [job]
+  (let [user (if (get job :user) (get job :user) "root")
+        sudo? (if (= (get job :sudo) true) true false)]
+    (if (or sudo? (not (= user "root")))
+      (str "sudo -u " user " --")
+      "")))
+
 (defn str-shell-variable [key value]
   (str key "=\"" value "\""))
+
+(defn str-shell-job-variables [variables]
+  (if (not (nil? variables))
+    (apply str-join " " (map
+                         (fn [key]
+                           (str-shell-variable key (get variables key)))
+                         (keys variables))) ""))
+
+(defn str-shell-entrypoint [entrypoint]
+  (apply str-join " " (if (nil? entrypoint) ["bash" "-c"] entrypoint)))
 
 (defn output-line-action [action]
   (println-stderr (green action)))

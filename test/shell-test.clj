@@ -53,3 +53,10 @@
       :sudo true
       :user "nobody"
       :script ["whoami"]})
+
+(job {:name "change entrypoint"
+      :method "shell"
+      :entrypoint ["sh" "-c"]
+      :sudo true
+      :user "nobody"
+      :script ["whoami"]})
