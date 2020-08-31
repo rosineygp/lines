@@ -1668,6 +1668,40 @@ _str_subs () {
 
 _fref "str-subs" _str_subs
 
+_range () {
+    local start=0
+    local end=0
+    local step=1
+
+    end="${ANON["${1}"]}"; shift
+    if [ "${1}" != "" ]
+    then
+        start="$end"
+        end="${ANON["${1}"]}"; shift
+        [ "${1}" != "" ] && step="${ANON["${1}"]}"; shift
+    fi
+
+    _list
+    local newlist="${r}"
+
+    if ((end>=start))
+    then
+        for ((i=start;i<=end;i+=step)); do
+            _number "$i"
+            _conj! "${newlist}" "${r}"
+        done
+    else
+        for ((i=start;i>=end;i-=step)); do
+            _number "$i"
+            _conj! "${newlist}" "${r}"
+        done
+    fi
+
+    r="${newlist}"
+}
+
+_fref "range" _range
+
 REP "(def! load-file-without-hashbang (fn* (f) (eval (read-string (str \"(do \" (remove-hashbang (slurp f) ) \"\nnil)\")))))"
 read -d "" __FLECK__REPCAPTURE << __FLECK__INLINEMALFILE
 ;; aliases for common clojure names to mal builtins
