@@ -1,5 +1,6 @@
 (load-file-without-hashbang "src/includes/use.clj")
 (load-file-without-hashbang "src/includes/colors.clj")
+(load-file-without-hashbang "src/includes/utils.clj")
 (load-file-without-hashbang "src/core.clj")
 (load-file-without-hashbang "src/pretty-print.clj")
 (load-file-without-hashbang "src/docker.clj")

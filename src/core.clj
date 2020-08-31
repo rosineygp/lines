@@ -6,6 +6,11 @@
                    (fn [a b] (str-replace a b "-"))
                    string [":" "." "/" "_" " "])))
 
+(defn str-escapes [string]
+  (reduce
+   (fn [a b] (str-replace a b (str "\\" b)))
+   string ["'"]))
+
 (defn output-line-action [action]
   (println-stderr (green action)))
 
