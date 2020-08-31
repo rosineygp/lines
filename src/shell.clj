@@ -20,7 +20,7 @@
                                   (if (get job :variables)
                                     (apply str-join " " (map
                                                          (fn [key]
-                                                           (str key "=\"" (get (get job :variables) key) "\""))
+                                                           (str-shell-variable key (get (get job :variables) key)))
                                                          (keys (get job :variables)))) "")
                                   ";"
                                   (str-escapes raw-cmd)
