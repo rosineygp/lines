@@ -1,0 +1,34 @@
+diff --git a/flk b/flk
+index e61acd3..ac95683 100755
+--- a/flk
++++ b/flk
+@@ -1702,6 +1702,29 @@ _range () {
+ 
+ _fref "range" _range
+ 
++_str_indent () {
++    local s=""
++    local t=2
++
++    spaces=""
++
++    s="${ANON["${1}"]}"; shift
++    [ "${1}" != "" ] && t="${ANON["${1}"]}"; shift
++
++    for ((x = 0; x < t; x++)); do
++        spaces+=" "
++    done
++
++    if [[ -x $(command -v sed) ]]
++    then
++        _string "$(sed "s/^/$spaces/" <<<$s)"
++    else
++        _string "${spaces}${s}"
++    fi
++}
++
++_fref "str-indent" _str_indent
++
+ REP "(def! load-file-without-hashbang (fn* (f) (eval (read-string (str \"(do \" (remove-hashbang (slurp f) ) \"\nnil)\")))))"
+ read -d "" __FLECK__REPCAPTURE << __FLECK__INLINEMALFILE
+ ;; aliases for common clojure names to mal builtins

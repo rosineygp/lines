@@ -20,6 +20,7 @@
                "patch -i patches/010-pmap.flk.patch -u dist/flk"
                "patch -i patches/011-pmap.flk.patch -u dist/flk"
                "patch -i patches/012-range.flk.patch -u dist/flk"
+               "patch -i patches/013-indent.flk.patch -u dist/flk"
                "grep -v load-file-without-hashbang src/includes/colors.clj > dist/combined.clj"
                "patch -i patches/008-colors.clj.patch -u dist/combined.clj"
                "grep -v load-file-without-hashbang src/includes/use.clj >> dist/combined.clj"

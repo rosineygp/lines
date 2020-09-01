@@ -27,6 +27,7 @@ patch -i patches/009-unset.flk.patch -u .flk
 patch -i patches/010-pmap.flk.patch -u .flk
 patch -i patches/011-pmap.flk.patch -u .flk
 patch -i patches/012-range.flk.patch -u dist/flk
+patch -i patches/013-indent.flk.patch -u dist/flk
 
 chmod +x .flk
 mv .flk flk
