@@ -1,4 +1,4 @@
-(defn lines-shell-exec [job raw-cmd]
+(defn lines-shell-exec [job script-line]
   (let [start (time-ms)
         sudo (str-shell-sudo job)
         branch (branch-or-tag-name)
@@ -10,7 +10,7 @@
                                   (str-shell-variable "BRANCH_NAME_SLUG" (str-slug branch))
                                   (str-shell-job-variables (get job :variables))
                                   ";"
-                                  (str-escapes raw-cmd)
+                                  (str-escapes script-line)
                                   "'"])
         result (sh! cmd)
         finished (time-ms)]
@@ -21,11 +21,12 @@
                       (nth result 0)
                       (nth result 1)
                       (nth result 2)
+                      script-line
                       cmd))))
 
 (defn lines-shell-job [job]
   (do
-    (map (fn [cmd]
+    (map (fn [script-line]
            (do
-             (lines-shell-exec job cmd)))
+             (lines-shell-exec job script-line)))
          (get job :script))))

@@ -73,10 +73,11 @@
                    (do
                      (hash-map (keyword (nth key-val 0)) (nth key-val 1))))) (str-split string ","))))
 
-(defn lines-task-obj [start finished stdout stderr exit-code debug]
+(defn lines-task-obj [start finished stdout stderr exit-code script-line debug]
   {:start start
    :finished finished
    :stdout stdout
    :stderr stderr
    :exit-code exit-code
+   :script-line script-line
    :debug debug})
