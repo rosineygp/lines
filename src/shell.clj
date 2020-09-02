@@ -16,7 +16,12 @@
         finished (time-ms)]
     (do
       (lines-throw-command result)
-      (lines-task-obj start raw-cmd cmd result finished))))
+      (lines-task-obj start
+                      finished
+                      (nth result 0)
+                      (nth result 1)
+                      (nth result 2)
+                      cmd))))
 
 (defn lines-shell-job [job]
   (do

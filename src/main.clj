@@ -21,7 +21,7 @@
 
 (defn lines-job-status [pipestatus]
   (let [exit-sum (reduce (fn [a b] (+ a b)) 0 pipestatus)]
-    (if (= exit-sum 0) "ok" "failed")))
+    (if (= exit-sum 0) true false)))
 
 (defn lines-job-method [job retries]
   (let [method (get job :method)]
@@ -45,20 +45,20 @@
         retries (if (get item :retries)
                   (atom (if (> (get item :retries) max-attempts) max-attempts (get item :retries)))
                   (atom 1))
-        script (try*
-                (lines-job-method item retries)
-                (catch* ex
-                        (let [error (lines-throw-split ex)]
-                          (throw (str "exit-code=" (get error :exit-code) ",message=Job " (get item :name) " failed.")))))
-        pipestatus (map (fn [x] (get x :exit-code)) script)
-        result {:name (get item :name)
-                :start start
-                :script script
-                :finished (time-ms)
-                :pipestatus pipestatus
-                :status (lines-job-status pipestatus)}]
+        tasks (try*
+               (lines-job-method item retries)
+               (catch* ex
+                       (let [error (lines-throw-split ex)]
+                         (throw (str "exit-code=" (get error :exit-code) ",message=Job " (get item :name) " failed.")))))
+        pipestatus (map (fn [x] (get x :exit-code)) tasks)
+        result (assoc item
+                      :start start
+                      :finished (time-ms)
+                      :pipestatus pipestatus
+                      :success (lines-job-status pipestatus)
+                      :tasks tasks)]
     (do
-      (lines-pp result)
+      (println result)
       result)))
 
 (defn parallel [items]
