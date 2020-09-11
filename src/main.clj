@@ -1,11 +1,13 @@
+(load-file-without-hashbang "src/includes/lang-utils.clj")
 (load-file-without-hashbang "src/includes/use.clj")
 (load-file-without-hashbang "src/includes/colors.clj")
-(load-file-without-hashbang "src/includes/utils.clj")
+
 (load-file-without-hashbang "src/core.clj")
-(load-file-without-hashbang "src/pretty-print.clj")
-(load-file-without-hashbang "src/docker.clj")
-(load-file-without-hashbang "src/shell.clj")
-(load-file-without-hashbang "src/ssh.clj")
+
+(load-file-without-hashbang "src/modules/pretty-print.clj")
+(load-file-without-hashbang "src/modules/docker.clj")
+(load-file-without-hashbang "src/modules/shell.clj")
+(load-file-without-hashbang "src/modules/ssh.clj")
 
 (use ["pwd"
       "pwd"
