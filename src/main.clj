@@ -19,49 +19,46 @@
 (def repos (str "/repos/" current-dir))
 
 (def ttl 3600)
-(def max-attempts 3)
+(def max-attempts 2)
 
-(defn lines-job-status [pipestatus]
-  (let [exit-sum (reduce (fn [a b] (+ a b)) 0 pipestatus)]
+(defn lines-job-status [l]
+  (let [exit-sum (reduce (fn [a b] (+ a b)) 0 l)]
     (if (= exit-sum 0) true false)))
 
-(defn lines-job-method [job retries]
-  (let [method (get job :method)]
+(defn lines-retries [r]
+  (if r (if (> r max-attempts) max-attempts r) 0))
+
+(defn lines-job-retry-inner [retries k! f job]
+  (let [r ((call f) job)
+        retry? (reduce (fn [a b] (+ a b)) 0 (map (fn [x] (get x :exit-code)) r))]
     (do
-      (if (> @retries 0)
-        (try*
-         (cond
-           (= method "docker") (do (lines-docker-job job))
-           (= method "shell") (do (lines-shell-job job))
-           (= method "ssh") (do (lines-ssh-job job)))
-         (catch* ex
-                 (do
-                   (swap! retries dec)
-                   (lines-output-error (str "Command failed: " @retries "/" max-attempts))
-                   (lines-job-method job retries))))
-        (throw "exit-code=1,message=Error in all attempts.")))))
+      (swap! k! concat [r])
+      (if (> retry? 0)
+        (if (> retries 0)
+          (lines-job-retry-inner (dec retries) k! f job))))))
+    
+(defn lines-job-retry [retries f job]
+  (let [k (atom [])]
+    (do
+      (lines-job-retry-inner retries k f job)
+      @k)))
 
 (defn job [item]
   (let [start (time-ms)
         method (get item :method)
-        retries (if (get item :retries)
-                  (atom (if (> (get item :retries) max-attempts) max-attempts (get item :retries)))
-                  (atom 1))
-        tasks (try*
-               (lines-job-method item retries)
-               (catch* ex
-                       (let [error (lines-throw-split ex)]
-                         (throw (str "exit-code=" (get error :exit-code) ",message=Job " (get item :name) " failed.")))))
-        pipestatus (map (fn [x] (get x :exit-code)) tasks)
+        retries (lines-retries (get item :retries))
+        tasks (lines-job-retry retries (str "lines-job-" method) item)
+        pipestatus (map (fn [l]
+                          (map (fn [x] (get x :exit-code)) l)) tasks)
+        status (lines-job-status (apply concat pipestatus))
         result (assoc item
+                      :attempts (count tasks)
                       :start start
                       :finished (time-ms)
                       :pipestatus pipestatus
-                      :success (lines-job-status pipestatus)
+                      :status status
                       :tasks tasks)]
-    (do
-      (println result)
-      result)))
+    (if (or status (get item :allow_failure)) result (throw result))))
 
 (defn parallel [items]
   (pmap (fn [item] (job item)) items))
