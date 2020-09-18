@@ -8,3 +8,12 @@
 
 (defn key-name [k]
   (if (keyword? k) (str-subs k 1) nil))
+
+; return function from string
+(defn call [f] 
+  (eval (symbol f)))
+
+; check if object exist and is a function
+(defn callable? [f]
+  (fn?
+   (try* (call f) (catch* ex))))
