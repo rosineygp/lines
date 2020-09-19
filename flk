@@ -370,12 +370,13 @@ _filter_with_type () {
     local items="${ANON["${1}"]}"; shift
     eval "${constructor}"; local new_seq="${r}"
     for v in ${items}; do
-        #echo eval ${f%%@*} "${v}" "${@}"
+        # echo eval ${f%%@*} "${v}" "${@}"
+        i="${v}"
         eval ${f%%@*} "${v}" "${@}"
         [[ "${__ERROR}" ]] && r= && return 1
         _obj_type "${r}"
         if [[ "${r}" == "true" ]]; then
-            _conj! "${new_seq}" "${v}"
+            _conj! "${new_seq}" "${i}"
         fi
     done
     r="${new_seq}"
