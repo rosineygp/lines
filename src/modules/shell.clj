@@ -132,14 +132,17 @@
      :exit-code (nth result 2)
      :debug cmd}))
 
-; precisa retornar uma lista de listas, o index fica deve retornar fora do lines-task-execute
 (defn lines-task-loop [j f & more]
   (let [l (get j :script)
-        t (- (count l) 1)]
-    (map (fn [i]
-           (let [str-cmd (apply f j (nth l i) more)]
-             (lines-task-execute str-cmd))) (range t))))
-
+        t (- (count l) 1)
+        break (atom 0)]
+    (filter (fn [x] (map? x)) (map
+                               (fn [i] (if (= @break 0)
+                                         (let [str-cmd (apply f j (nth l i) more)
+                                               r (lines-task-execute str-cmd)]
+                                           (if (> (get r :exit-code) 0) (swap! break inc))
+                                           r) nil))
+                               (range t)))))
 
 (defn lines-job-shell [job]
   (do
