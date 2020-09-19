@@ -364,6 +364,27 @@ _map () {
     _map_with_type _list "${@}"
 }
 
+_filter_with_type () {
+    local constructor="${1}"; shift
+    local f="${1}"; shift
+    local items="${ANON["${1}"]}"; shift
+    eval "${constructor}"; local new_seq="${r}"
+    for v in ${items}; do
+        #echo eval ${f%%@*} "${v}" "${@}"
+        eval ${f%%@*} "${v}" "${@}"
+        [[ "${__ERROR}" ]] && r= && return 1
+        _obj_type "${r}"
+        if [[ "${r}" == "true" ]]; then
+            _conj! "${new_seq}" "${v}"
+        fi
+    done
+    r="${new_seq}"
+}
+
+_filter () {
+    _filter_with_type _list "${@}"
+}
+
 _pmap_with_type () {
     local constructor="${1}"; shift
     local f="${1}"; shift
@@ -1036,6 +1057,12 @@ map () {
     _map "${f}" "${@}"
 }
 
+filter () {
+    local f="${ANON["${1}"]}"; shift
+    #echo _filter "${f}" "${@}"
+    _filter "${f}" "${@}"
+}
+
 pmap () {
     local f="${ANON["${1}"]}"; shift
     #echo _map "${f}" "${@}"
@@ -1196,6 +1223,7 @@ declare -A core_ns=(
     [count]=count
     [apply]=apply
     [map]=map
+    [filter]=filter
     [pmap]=pmap
 
     [conj]=conj
