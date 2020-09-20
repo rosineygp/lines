@@ -53,18 +53,6 @@
                    (do
                      (hash-map (keyword (nth key-val 0)) (nth key-val 1))))) (str-split string ","))))
 
-(defn lines-job-script-by-index [job index]
-  (nth (get job :script) index))
-
-(defn lines-task-obj [start finished stdout stderr exit-code script-line debug]
-  {:start start
-   :finished finished
-   :stdout stdout
-   :stderr stderr
-   :exit-code exit-code
-   :script-line script-line
-   :debug debug})
-
 ; job handler
 (defn lines-job-status [l]
   (let [exit-sum (reduce (fn [a b] (+ a b)) 0 l)]
@@ -117,3 +105,23 @@
                                            (if (> (get r :exit-code) 0) (swap! break inc))
                                            r) nil))
                                (range t)))))
+
+(defn job [item]
+  (let [start (time-ms)
+        method (get item :method)
+        retries (lines-retries (get item :retries))
+        tasks (lines-job-retry retries (str "lines-job-" method) item)
+        pipestatus (map (fn [l]
+                          (map (fn [x] (get x :exit-code)) l)) tasks)
+        status (lines-job-status (apply concat pipestatus))
+        result (assoc item
+                      :attempts (count tasks)
+                      :start start
+                      :finished (time-ms)
+                      :pipestatus pipestatus
+                      :status status
+                      :tasks tasks)]
+    (if (or status (get item :allow_failure)) result (throw result))))
+
+(defn parallel [items]
+  (pmap (fn [item] (job item)) items))
