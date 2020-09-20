@@ -1,5 +1,3 @@
-(use ["docker"])
-
 (defn lines-docker-traps [list]
   (trap! (str "{ " (apply str-join "; " (map (fn [item]
                                                (if (= (get item :type) "container")
