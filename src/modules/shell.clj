@@ -32,5 +32,4 @@
                          "'"])))
 
 (defn lines-job-shell [job]
-  (do
-    (lines-task-loop job str-shell-command-line)))
+  (lines-task-loop job str-shell-command-line))
