@@ -83,7 +83,7 @@
 (defn lines-tasks-break [result]
   (if (> (get result :exit-code) 0) (throw result) result))
 
-(defn lines-task-execute [cmd]
+(defn lines-task-execute [cmd user-cmd]
   (let [start (time-ms)
         result (sh! cmd)
         finished (time-ms)]
@@ -92,6 +92,7 @@
      :stdout (nth result 0)
      :stderr (nth result 1)
      :exit-code (nth result 2)
+     :cmd user-cmd
      :debug cmd}))
 
 (defn lines-task-loop [j f & more]
@@ -100,8 +101,9 @@
         break (atom 0)]
     (filter (fn [x] (map? x)) (map
                                (fn [i] (if (= @break 0)
-                                         (let [str-cmd (apply f j (nth l i) more)
-                                               r (lines-task-execute str-cmd)]
+                                         (let [user-cmd (nth l i)
+                                               str-cmd (apply f j user-cmd more)
+                                               r (lines-task-execute str-cmd user-cmd)]
                                            (if (> (get r :exit-code) 0) (swap! break inc))
                                            r) nil))
                                (range t)))))
