@@ -410,14 +410,15 @@ _pmap_with_type () {
             eval ${f%%@*} "${v}" "${@}" 
             [[ "${__ERROR}" ]] && r= && return 1;
 
-            str "${r}"
-            echo -n "\"${ANON["${r}"]}\"" > "/dev/shm/_flk_pmap_${pmap_id}_${index}"
+            pr_str "${r}"
+            echo -n "${ANON["${r}"]}" > "/dev/shm/_flk_pmap_${pmap_id}_${index}"
         ) &
 
         ((index++))
         
-        # threads = cores + 1
-        if [[ $(jobs -r -p | wc -l) -gt $cores ]]; then
+        # thread control core number + 1
+        j=( $(jobs -r -p) )
+        if [[ "${#j[@]}" -gt $cores ]]; then
             wait -n
         fi
     done
@@ -427,11 +428,13 @@ _pmap_with_type () {
 
     index=0
     for v in ${items}; do
-        READ_STR "$(</dev/shm/_flk_pmap_${pmap_id}_${index})"
+        READ_STR "$(</dev/shm/_flk_pmap_${pmap_id}_${index})" && unlink "/dev/shm/_flk_pmap_${pmap_id}_${index}"
         _conj! "${new_seq}" "${r}";
-        unlink "/dev/shm/_flk_pmap_${pmap_id}_${index}"
         ((index++))
     done
+
+    # terminal can break after parallel jobs :(
+    reset
     r="${new_seq}"
 }
 
@@ -550,7 +553,7 @@ TOKENIZE () {
     local datalen=${#data}
     local idx=0
     local chunk=0
-    local chunksz=500
+    local chunksz=$datalen
     local token=
     local str=
 
