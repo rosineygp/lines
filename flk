@@ -417,7 +417,7 @@ _pmap_with_type () {
         ((index++))
         
         # thread control core number + 1
-        j=( $(jobs -r -p) )
+        local j=( $(jobs -r -p) )
         if [[ "${#j[@]}" -gt $cores ]]; then
             wait -n
         fi
