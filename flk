@@ -54,8 +54,8 @@ _obj_type () {
         func) r="function" ;;
         strn)
             local s="${ANON["${1}"]}"
-            if [[ "${1:0:1}" = "${__keyw}" ]] \
-                || [[ "${1:0:2}" = "${__keyw}" ]]; then
+            if [[ "${s:0:1}" = "${__keyw}" ]] \
+                || [[ "${s:0:2}" = "${__keyw}" ]]; then
                 r="keyword"
             else
                 r="string"

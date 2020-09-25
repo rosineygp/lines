@@ -1,0 +1,15 @@
+diff --git a/flk b/flk
+index 9e498b8..1bb7847 100755
+--- a/flk
++++ b/flk
+@@ -54,8 +54,8 @@ _obj_type () {
+         func) r="function" ;;
+         strn)
+             local s="${ANON["${1}"]}"
+-            if [[ "${1:0:1}" = "${__keyw}" ]] \
+-                || [[ "${1:0:2}" = "${__keyw}" ]]; then
++            if [[ "${s:0:1}" = "${__keyw}" ]] \
++                || [[ "${s:0:2}" = "${__keyw}" ]]; then
+                 r="keyword"
+             else
+                 r="string"
