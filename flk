@@ -54,8 +54,8 @@ _obj_type () {
         func) r="function" ;;
         strn)
             local s="${ANON["${1}"]}"
-            if [[ "${1:0:1}" = "${__keyw}" ]] \
-                || [[ "${1:0:2}" = "${__keyw}" ]]; then
+            if [[ "${s:0:1}" = "${__keyw}" ]] \
+                || [[ "${s:0:2}" = "${__keyw}" ]]; then
                 r="keyword"
             else
                 r="string"
@@ -364,6 +364,28 @@ _map () {
     _map_with_type _list "${@}"
 }
 
+_filter_with_type () {
+    local constructor="${1}"; shift
+    local f="${1}"; shift
+    local items="${ANON["${1}"]}"; shift
+    eval "${constructor}"; local new_seq="${r}"
+    for v in ${items}; do
+        # echo eval ${f%%@*} "${v}" "${@}"
+        i="${v}"
+        eval ${f%%@*} "${v}" "${@}"
+        [[ "${__ERROR}" ]] && r= && return 1
+        _obj_type "${r}"
+        if [[ "${r}" == "true" ]]; then
+            _conj! "${new_seq}" "${i}"
+        fi
+    done
+    r="${new_seq}"
+}
+
+_filter () {
+    _filter_with_type _list "${@}"
+}
+
 _pmap_with_type () {
     local constructor="${1}"; shift
     local f="${1}"; shift
@@ -388,14 +410,15 @@ _pmap_with_type () {
             eval ${f%%@*} "${v}" "${@}" 
             [[ "${__ERROR}" ]] && r= && return 1;
 
-            str "${r}"
-            echo -n "\"${ANON["${r}"]}\"" > "/dev/shm/_flk_pmap_${pmap_id}_${index}"
+            pr_str "${r}"
+            echo -n "${ANON["${r}"]}" > "/dev/shm/_flk_pmap_${pmap_id}_${index}"
         ) &
 
         ((index++))
         
-        # threads = cores + 1
-        if [[ $(jobs -r -p | wc -l) -gt $cores ]]; then
+        # thread control core number + 1
+        local j=( $(jobs -r -p) )
+        if [[ "${#j[@]}" -gt $cores ]]; then
             wait -n
         fi
     done
@@ -405,11 +428,18 @@ _pmap_with_type () {
 
     index=0
     for v in ${items}; do
-        READ_STR "$(</dev/shm/_flk_pmap_${pmap_id}_${index})"
+        READ_STR "$(</dev/shm/_flk_pmap_${pmap_id}_${index})" && unlink "/dev/shm/_flk_pmap_${pmap_id}_${index}"
         _conj! "${new_seq}" "${r}";
-        unlink "/dev/shm/_flk_pmap_${pmap_id}_${index}"
         ((index++))
     done
+
+    if [[ -x $(command -v stty) ]]
+    then
+        stty sane
+    else
+        echo -e "Warning: command stty not found, terminal screen can be messed up after script done.">&2
+    fi
+    
     r="${new_seq}"
 }
 
@@ -528,7 +558,7 @@ TOKENIZE () {
     local datalen=${#data}
     local idx=0
     local chunk=0
-    local chunksz=500
+    local chunksz=$datalen
     local token=
     local str=
 
@@ -1036,6 +1066,12 @@ map () {
     _map "${f}" "${@}"
 }
 
+filter () {
+    local f="${ANON["${1}"]}"; shift
+    #echo _filter "${f}" "${@}"
+    _filter "${f}" "${@}"
+}
+
 pmap () {
     local f="${ANON["${1}"]}"; shift
     #echo _map "${f}" "${@}"
@@ -1196,6 +1232,7 @@ declare -A core_ns=(
     [count]=count
     [apply]=apply
     [map]=map
+    [filter]=filter
     [pmap]=pmap
 
     [conj]=conj

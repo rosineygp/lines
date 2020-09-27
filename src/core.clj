@@ -11,26 +11,6 @@
    (fn [a b] (str-replace a b (str "\\" b)))
    string ["'"]))
 
-(defn str-shell-sudo [job]
-  (let [user (if (get job :user) (get job :user) "root")
-        sudo? (if (= (get job :sudo) true) true false)]
-    (if (or sudo? (not (= user "root")))
-      (str "sudo -u " user " --")
-      "")))
-
-(defn str-shell-variable [key value]
-  (str key "=\"" value "\""))
-
-(defn str-shell-job-variables [variables]
-  (if (not (nil? variables))
-    (apply str-join " " (map
-                         (fn [key]
-                           (str-shell-variable key (get variables key)))
-                         (keys variables))) ""))
-
-(defn str-shell-entrypoint [entrypoint]
-  (apply str-join " " (if (nil? entrypoint) ["bash" "-c"] entrypoint)))
-
 (defn output-line-action [action]
   (println-stderr (green action)))
 
@@ -73,11 +53,77 @@
                    (do
                      (hash-map (keyword (nth key-val 0)) (nth key-val 1))))) (str-split string ","))))
 
-(defn lines-task-obj [start finished stdout stderr exit-code script-line debug]
-  {:start start
-   :finished finished
-   :stdout stdout
-   :stderr stderr
-   :exit-code exit-code
-   :script-line script-line
-   :debug debug})
+; job handler
+(defn lines-job-status [l]
+  (let [exit-sum (reduce (fn [a b] (+ a b)) 0 l)]
+    (if (= exit-sum 0) true false)))
+
+(defn lines-retries [r]
+  (if r (if (> r max-attempts) max-attempts r) 0))
+
+(defn lines-job-retry-inner [retries k! f job]
+  (let [r ((call f) job)
+        retry? (reduce (fn [a b] (+ a b)) 0 (map (fn [x] (get x :exit-code)) r))]
+    (do
+      (swap! k! concat [r])
+      (if (> retry? 0)
+        (if (> retries 0)
+          (lines-job-retry-inner (dec retries) k! f job))))))
+
+(defn lines-job-retry [retries f job]
+  (let [k (atom [])]
+    (do
+      (lines-job-retry-inner retries k f job)
+      @k)))
+
+; task handler
+(defn lines-tasks-allow-failure [allow_failure]
+  (if allow_failure true false))
+
+(defn lines-tasks-break [result]
+  (if (> (get result :exit-code) 0) (throw result) result))
+
+(defn lines-task-execute [cmd user-cmd]
+  (let [start (time-ms)
+        result (sh! cmd)
+        finished (time-ms)]
+    {:start start
+     :finished finished
+     :stdout (nth result 0)
+     :stderr (nth result 1)
+     :exit-code (nth result 2)
+     :cmd user-cmd
+     :debug cmd}))
+
+(defn lines-task-loop [j f & more]
+  (let [l (get j :script)
+        t (- (count l) 1)
+        break (atom 0)]
+    (filter (fn [x] (map? x)) (map
+                               (fn [i] (if (= @break 0)
+                                         (let [user-cmd (nth l i)
+                                               str-cmd (apply f j user-cmd more)
+                                               r (lines-task-execute str-cmd user-cmd)]
+                                           (if (> (get r :exit-code) 0) (swap! break inc))
+                                           r) nil))
+                               (range t)))))
+
+(defn job [item]
+  (let [start (time-ms)
+        method (get item :method)
+        retries (lines-retries (get item :retries))
+        tasks (lines-job-retry retries (str "lines-job-" method) item)
+        pipestatus (map (fn [l]
+                          (map (fn [x] (get x :exit-code)) l)) tasks)
+        status (lines-job-status (apply concat pipestatus))
+        result (assoc item
+                      :attempts (count tasks)
+                      :start start
+                      :finished (time-ms)
+                      :pipestatus pipestatus
+                      :status status
+                      :tasks tasks)]
+    (if (or status (get item :allow_failure)) result (throw result))))
+
+(defn parallel [items]
+  (pmap (fn [item] (job item)) items))

@@ -1,0 +1,13 @@
+diff --git a/flk b/flk
+index d6ce6e8..9e498b8 100755
+--- a/flk
++++ b/flk
+@@ -417,7 +417,7 @@ _pmap_with_type () {
+         ((index++))
+         
+         # thread control core number + 1
+-        j=( $(jobs -r -p) )
++        local j=( $(jobs -r -p) )
+         if [[ "${#j[@]}" -gt $cores ]]; then
+             wait -n
+         fi
