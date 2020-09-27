@@ -433,8 +433,13 @@ _pmap_with_type () {
         ((index++))
     done
 
-    # terminal can break after parallel jobs :(
-    reset
+    if [[ -x $(command -v stty) ]]
+    then
+        stty sane
+    else
+        echo -e "Warning: command stty not found, terminal screen can be messed up after script done.">&2
+    fi
+    
     r="${new_seq}"
 }
 
