@@ -1,0 +1,28 @@
+diff --git a/flk b/flk
+index 3a27d36..b5c2f81 100755
+--- a/flk
++++ b/flk
+@@ -428,7 +428,7 @@ _pmap_with_type () {
+ 
+     index=0
+     for v in ${items}; do
+-        READ_STR "$(</dev/shm/_flk_pmap_${pmap_id}_${index})" && unlink "/dev/shm/_flk_pmap_${pmap_id}_${index}"
++        READ_STR "$(</dev/shm/_flk_pmap_${pmap_id}_${index})" && unlink "/dev/shm/_flk_pmap_${pmap_id}_${index}" > /dev/null 2>&1
+         _conj! "${new_seq}" "${r}";
+         ((index++))
+     done
+@@ -558,7 +558,13 @@ TOKENIZE () {
+     local datalen=${#data}
+     local idx=0
+     local chunk=0
+-    local chunksz=$datalen
++    local chunksz=500
++
++    if ((datalen>500))
++    then
++        chunksz=$datalen
++    fi
++    
+     local token=
+     local str=
+ 
