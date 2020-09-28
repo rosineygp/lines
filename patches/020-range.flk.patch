@@ -1,0 +1,22 @@
+diff --git a/flk b/flk
+index 42c2ad0..3a27d36 100755
+--- a/flk
++++ b/flk
+@@ -1721,14 +1721,14 @@ _range () {
+     _list
+     local newlist="${r}"
+ 
+-    if ((end>=start))
++    if ((step>=0))
+     then
+-        for ((i=start;i<=end;i+=step)); do
++        for ((i=start;i<end;i+=step)); do
+             _number "$i"
+             _conj! "${newlist}" "${r}"
+         done
+     else
+-        for ((i=start;i>=end;i-=step)); do
++        for ((i=start;i>end;i+=step)); do
+             _number "$i"
+             _conj! "${newlist}" "${r}"
+         done

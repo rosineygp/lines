@@ -1721,14 +1721,14 @@ _range () {
     _list
     local newlist="${r}"
 
-    if ((end>=start))
+    if ((step>=0))
     then
-        for ((i=start;i<=end;i+=step)); do
+        for ((i=start;i<end;i+=step)); do
             _number "$i"
             _conj! "${newlist}" "${r}"
         done
     else
-        for ((i=start;i>=end;i-=step)); do
+        for ((i=start;i>end;i+=step)); do
             _number "$i"
             _conj! "${newlist}" "${r}"
         done
