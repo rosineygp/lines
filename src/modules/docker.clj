@@ -97,7 +97,7 @@
         services (if (get item :services)
                    (map
                     (fn [i] (str-lines-docker-run-service (nth (get item :services) i) (nth services-names i) network-name))
-                    (range (- (count services-names) 1))))
+                    (range (count services-names))))
         before-script (job {:name (str "before-script: " (get item :name))
                             :method "shell"
                             :script (concat [(str-lines-docker-network item network-name)]

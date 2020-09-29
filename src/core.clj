@@ -97,7 +97,7 @@
 
 (defn lines-task-loop [j f & more]
   (let [l (get j :script)
-        t (- (count l) 1)
+        t (count l)
         break (atom 0)]
     (filter (fn [x] (map? x)) (map
                                (fn [i] (if (= @break 0)
