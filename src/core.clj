@@ -11,15 +11,6 @@
    (fn [a b] (str-replace a b (str "\\" b)))
    string ["'"]))
 
-(defn output-line-action [action]
-  (println-stderr (green action)))
-
-(defn output-line-banner [name]
-  (println-stderr (str (bg-blue (bold (white (str  name " > " (str-date-time))))))))
-
-(defn lines-output-error [message]
-  (println-stderr (str (bg-red (bold (white message))))))
-
 (defn branch-or-tag-name []
   (cond
     (= (env "GITHUB_ACTIONS") "true") (last (str-split (env "GITHUB_REF") "/"))
@@ -31,27 +22,6 @@
                   "--is-inside-work-tree"]) 0) "true") (nth (git ["rev-parse"
                                                                   "--abbrev-ref"
                                                                   "HEAD"]) 0)))
-
-(defn print-command [result]
-  (let [std (nth result 0)
-        err (nth result 1)
-        exit-code (nth result 2)]
-    (if (= (empty? std) false) (println std))
-    (if (= (empty? err) false) (println-stderr (red err)))
-    (if (number? exit-code) (println-stderr (magenta exit-code)))))
-
-(defn lines-throw-command [result]
-  (if (> (nth result 2) 0)
-    (throw (apply str-join "," [(apply str-join "=" ["exit-code" (nth result 2)])
-                                (apply str-join "=" ["message" "Exit code greater than 0."])])) result))
-
-(defn lines-throw-split [string]
-  (reduce (fn [a b]
-            (assoc a (first (keys b)) (first (vals b)))) {}
-          (map (fn [i]
-                 (let [key-val (str-split i "=")]
-                   (do
-                     (hash-map (keyword (nth key-val 0)) (nth key-val 1))))) (str-split string ","))))
 
 ; job handler
 (defn lines-job-status [l]
@@ -77,12 +47,6 @@
       @k)))
 
 ; task handler
-(defn lines-tasks-allow-failure [allow_failure]
-  (if allow_failure true false))
-
-(defn lines-tasks-break [result]
-  (if (> (get result :exit-code) 0) (throw result) result))
-
 (defn lines-task-execute [cmd user-cmd]
   (let [start (time-ms)
         result (sh! cmd)
