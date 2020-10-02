@@ -100,4 +100,8 @@
     (if (or status (get item :allow_failure)) result (throw result))))
 
 (defn parallel [items]
-  (pmap (fn [item] (job item)) items))
+  (let [r (pmap (fn [item] (try*
+                            (job item)
+                            (catch* ex ex))) items)
+        e (reduce (fn [a b] (and a b)) true (map (fn [j] (get j :status)) r))]
+    (if e r (throw r))))
