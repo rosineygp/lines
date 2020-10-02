@@ -17,3 +17,11 @@
                       (if (vector? args)
                         (sh! (str ~cmd " " (apply str-join " " args)))
                         (sh! (str ~cmd)))))) list))))
+                              
+(defmacro! str-use
+  (fn* [list]
+       (map (fn [cmd]
+              (quasiquote (defn ~cmd [args]
+                            (if (vector? args)
+                              (apply str-join " " ~cmd args)
+                              (str ~cmd))))) list)))

@@ -1,3 +1,6 @@
+(defn str-cmd [args]
+  (apply str-join " " args))
+
 (defn str-date-time []
   (nth (date ["+'%Y-%m-%d %T'"]) 0))
 
