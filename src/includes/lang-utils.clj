@@ -11,6 +11,9 @@
 (defn hashmap-list [l]
   (map (fn [k] (vector k (get l k))) (keys l)))
 
+(defn merge [a b]
+  (reduce (fn [x y] (assoc x (first y) (last y))) a (hashmap-list b)))
+
 (defn key-name [k]
   (if (keyword? k) (str-subs k 1) nil))
 
