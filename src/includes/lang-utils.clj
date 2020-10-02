@@ -25,3 +25,10 @@
 
 (defn key-exist? [m k]
   (not (nil? (get m k))))
+
+(defn get-in [k v]
+  (let [r (get k (first v))]
+    (cond
+      (nil? r) nil
+      (map? r) (get-in r (rest v))
+      (keyword? :else) r)))
