@@ -26,6 +26,13 @@
                                                                   "--abbrev-ref"
                                                                   "HEAD"]) 0)))
 
+(defn isremote? [job]
+  (let [r (get-in job [:connection :method])]
+    (cond
+      (nil? r) false
+      (= r "local") false
+      (keyword? :else) true)))
+
 ; job handler
 (defn lines-job-status [l]
   (let [exit-sum (reduce (fn [a b] (+ a b)) 0 l)]
