@@ -1,0 +1,21 @@
+diff --git a/flk b/flk
+index 99a578c..c09f6b4 100755
+--- a/flk
++++ b/flk
+@@ -1772,6 +1772,16 @@ _str_indent () {
+ 
+ _fref "str-indent" _str_indent
+ 
++_mod () {
++    local a="${ANON["${1}"]}"; shift
++    local b="${ANON["${1}"]}"; shift
++    local rest="$((a % b))"
++
++    _number "$rest"
++}
++
++_fref "mod" _mod
++
+ REP "(def! load-file-without-hashbang (fn* (f) (eval (read-string (str \"(do \" (remove-hashbang (slurp f) ) \"\nnil)\")))))"
+ read -d "" __FLECK__REPCAPTURE << __FLECK__INLINEMALFILE
+ ;; aliases for common clojure names to mal builtins
