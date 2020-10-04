@@ -35,3 +35,9 @@
       (nil? r) nil
       (map? r) (get-in r (rest v))
       (keyword? :else) r)))
+
+(defn even? [n]
+  (if (= (mod n 2) 0) true false))
+
+(defn odd? [n]
+  (if (= (even? n) true) false true))
