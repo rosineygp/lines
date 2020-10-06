@@ -1,10 +1,11 @@
 (load-file-without-hashbang "src/test.clj")
 (load-file-without-hashbang "src/includes/use.clj")
 
+(use ["ls"])
+
 (deftest "use"
   (testing "assignment command"
-    (use ["ls"])
-    (is (= (fn? ls))))
+    (is (= (fn? ls) true)))
 
   (testing "calling command, exit code"
     (is (= (nth (ls ["/"]) 2) 0)))
@@ -17,5 +18,5 @@
 
   (testing "assignment nonexistent command"
     (try*
-      (use ["fake_command"])
-      (catch* e (is (= e "exit-code 1"))))))
+     (use ["fake_command"])
+     (catch* e (is (= e "exit-code 1"))))))
