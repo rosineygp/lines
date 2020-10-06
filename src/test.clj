@@ -1,8 +1,5 @@
 ; super small framework for unit test
 
-(def asserts (atom 0))
-(def exit-code (atom 0))
-
 (defn deftest [title & l]
   (let [total (count l)
         success (reduce (fn [a b] (+ a b)) 0 (map (fn [x] (if (= (get x :result) true) 1 0)) l))
