@@ -1,10 +1,9 @@
 (load-file-without-hashbang "src/test.clj")
 
 (load-file-without-hashbang "src/includes/use.clj")
-(load-file-without-hashbang "src/includes/colors.clj")
-(load-file-without-hashbang "src/main.clj")
+(load-file-without-hashbang "src/core.clj")
 
-(use ["sleep"])
+(use ["date" "git"])
 
 (deftest "str-date-time"
   (testing "return type"
