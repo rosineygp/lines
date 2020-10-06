@@ -35,51 +35,48 @@
 (deftest "branch-or-tag-name"
   (testing "local branch [dev]"
     (is (= (branch-or-tag-name) "dev")))
-    
-  (env "GITHUB_ACTIONS" "true")
-  (env "GITHUB_REF" "/refs/heads/github-actions")
 
   (testing "github actions"
-    (is (= (branch-or-tag-name) "github-actions")))
-  
-  (unset "GITHUB_ACTIONS")
-  (unset "GITHUB_REF")
-
-  (env "GITLAB_CI" "true")
-  (env "CI_COMMIT_REF_NAME" "gitlab-ci")
+    (do
+      (env "GITHUB_ACTIONS" "true")
+      (env "GITHUB_REF" "/refs/heads/github-actions")
+      (is (= (branch-or-tag-name) "github-actions"))))
 
   (testing "gitlab-ci"
-    (is (= (branch-or-tag-name) "gitlab-ci")))
+    (do
+      (unset "GITHUB_ACTIONS")
+      (unset "GITHUB_REF")
+      (env "GITLAB_CI" "true")
+      (env "CI_COMMIT_REF_NAME" "gitlab-ci")
+      (is (= (branch-or-tag-name) "gitlab-ci"))))
 
-  (unset "GITLAB_CI")
-  (unset "CI_COMMIT_REF_NAME")
-
-  (env "JENKINS_URL" "http://jenkins")
-  (env "GIT_BRANCH" "jenkins")
-  
   (testing "jenkins"
-    (is (= (branch-or-tag-name) "jenkins")))
-
-  (unset "JENKINS_URL")
-  (unset "GIT_BRANCH")
-
-  (env "TRAVIS" "true")
-  (env "TRAVIS_BRANCH" "travis")
+    (do
+      (unset "GITLAB_CI")
+      (unset "CI_COMMIT_REF_NAME")
+      (env "JENKINS_URL" "http://jenkins")
+      (env "GIT_BRANCH" "jenkins")
+      (is (= (branch-or-tag-name) "jenkins"))))
 
   (testing "travis"
-    (is (= (branch-or-tag-name) "travis")))
+    (do
+      (unset "JENKINS_URL")
+      (unset "GIT_BRANCH")
 
-  (unset "TRAVIS")
-  (unset "TRAVIS_BRANCH")
-
-  (env "CIRCLECI" "true")
-  (env "CIRCLE_TAG" "circle-ci-tag")
-  (env "CIRCLE_BRANCH" "circle-ci-brach")
+      (env "TRAVIS" "true")
+      (env "TRAVIS_BRANCH" "travis")
+      (is (= (branch-or-tag-name) "travis"))))
 
   (testing "circle-ci-tag"
-    (is (= (branch-or-tag-name) "circle-ci-tag")))
-
-  (unset "CIRCLE_TAG")
+    (do
+      (unset "TRAVIS")
+      (unset "TRAVIS_BRANCH")
+      (env "CIRCLECI" "true")
+      (env "CIRCLE_TAG" "circle-ci-tag")
+      (env "CIRCLE_BRANCH" "circle-ci-brach")
+      (is (= (branch-or-tag-name) "circle-ci-tag"))))
 
   (testing "circle-ci-branch"
-    (is (= (branch-or-tag-name) "circle-ci-brach"))))
+    (do
+      (unset "CIRCLE_TAG")
+      (is (= (branch-or-tag-name) "circle-ci-brach")))))
