@@ -3,8 +3,7 @@
 (defn deftest [title & l]
   (let [total (count l)
         success (reduce (fn [a b] (+ a b)) 0 (map (fn [x] (if (= (get x :result) true) 1 0)) l))
-        total-time (reduce (fn [a b] (+ a b)) 0 (map (fn [x] (get x :time-elapsed)) l))
-        e (get (last l) :end)]
+        total-time (reduce (fn [a b] (+ a b)) 0 (map (fn [x] (get x :time-elapsed)) l))]
     (do
       (println "[" title "]" (str success "/" total) ":total-time" total-time "ms\n")
       (if (= success total) l (exit! 1)))))
