@@ -7,7 +7,10 @@ A pure bash clojureish CI pipeline.
 Options:
 -i, --inventory     inventory file.
 -p, --pipeline      pipeline file.
--c, --clojure       for clj file (pure clojure pipeline)"))
+-c, --clojure       for clj file (pure clojure pipeline)
+
+Otherwise:
+run .lines.edn or .lines.clj"))
 
 (defn options [o]
   (cond
@@ -22,7 +25,12 @@ Options:
 (defn read-args []
   (let [n (count *ARGV*)]
     (cond
-      (= n 0) (do (help) (exit! 1))
+      (= n 0) (cond 
+                (file-exists? ".lines.edn") (hash-map :pipeline ".lines.edn")
+                (file-exists? ".lines.clj") (hash-map :clojure ".lines.clj")
+                (keyword? :else) (do 
+                                    (help) 
+                                    (exit! 1)))
       (and (= n 1)
            (or (= (first *ARGV*) "-h") (= (first *ARGV*) "--help"))) (do
                                                                        (help)
