@@ -1,5 +1,3 @@
-(load-file-without-hashbang "src/includes/lang-utils.clj")
-
 (defn help []
   (println "Usage: lines [OPTION]... [FILE]...
 A pure bash clojureish CI pipeline.

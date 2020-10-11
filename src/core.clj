@@ -33,6 +33,16 @@
       (= r "local") false
       (keyword? :else) true)))
 
+; job defaults
+(defn lines-job-default-options [item]
+  (let [d {:name "lines"
+           :stage "default"
+           :target {:method "local"}
+           :module "shell"
+           :args {}
+           :apply ["echo lines"]}]
+    (merge d item)))
+
 ; job handler
 (defn lines-job-status [l]
   (let [exit-sum (reduce (fn [a b] (+ a b)) 0 l)]
@@ -83,18 +93,17 @@
                                (range t)))))
 
 (defn job [item]
-  (let [_default {:name "lines"
-                  :stage "default"
-                  :target {:method "local"}
-                  :module "shell"
-                  :apply ["echo lines"]}
-        item (merge _default item)
+  (let [item (let [t (lines-job-default-options item)
+                   f (str "line-module-args-" (get t :module))]
+               (if (callable? f) (assoc t :args ((call f) (get t :args))) t))
         start (time-ms)
         retries (lines-retries (get item :retries))
         result (let [module (get item :module)]
-                (do
-                 (load-once (str "src/modules/" module ".clj"))
-                 (lines-job-retry retries (str "lines-module-" module) item)))
+                 (do
+                   (if (not (or (= module "shell")
+                                (= module "docker")
+                                (= module "scp"))) (load-once (str "src/modules/" module ".clj")))
+                   (lines-job-retry retries (str "lines-module-" module) item)))
         pipestatus (map (fn [l]
                           (map (fn [x] (get x :exit-code)) l)) result)
         status (lines-job-status (apply concat pipestatus))
@@ -115,4 +124,4 @@
     (if e r (throw r))))
 
 (defn pipeline [p]
-  (println (map job (read-string (slurp p)))))
+  (prn (map job (read-string (slurp p)))))
