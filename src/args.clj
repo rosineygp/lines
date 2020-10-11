@@ -1,7 +1,7 @@
 (load-file-without-hashbang "src/includes/lang-utils.clj")
 
 (defn help []
-    (println "Usage: lines [OPTION]... [FILE]...
+  (println "Usage: lines [OPTION]... [FILE]...
 A pure bash clojureish CI pipeline.
 
 Options:
@@ -19,19 +19,19 @@ Options:
                        (help)
                        (exit! 1))))
 
-(let [n (count *ARGV*)]
-  (cond
-    (= n 0) (do (help) (exit! 1))
-    (and (= n 1)
-         (or (= (first *ARGV*) "-h") (= (first *ARGV*) "--help"))) (do
-                                                                     (help)
-                                                                     (exit! 0))
-    (odd? n) (do
-               (println "Parameter error:")
-               (help)
-               (exit! 1))
-    (keyword? :else) (let [parameters (reduce
-                                       (fn [a b] (merge a b)) {} (map
-                                                                  (fn [s] (hash-map (options (nth *ARGV* s)) (nth *ARGV* (+ 1 s)))) (range 0 n 2)))]
-                       (do
-                         (println parameters)))))
+(defn read-args []
+  (let [n (count *ARGV*)]
+    (cond
+      (= n 0) (do (help) (exit! 1))
+      (and (= n 1)
+           (or (= (first *ARGV*) "-h") (= (first *ARGV*) "--help"))) (do
+                                                                       (help)
+                                                                       (exit! 0))
+      (odd? n) (do
+                 (println "Parameter error:")
+                 (help)
+                 (exit! 1))
+      (keyword? :else) (let [parameters (reduce
+                                         (fn [a b] (merge a b)) {} (map
+                                                                    (fn [s] (hash-map (options (nth *ARGV* s)) (nth *ARGV* (+ 1 s)))) (range 0 n 2)))]
+                         parameters))))

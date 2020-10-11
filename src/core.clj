@@ -27,7 +27,7 @@
                                                                   "HEAD"]) 0)))
 
 (defn isremote? [job]
-  (let [r (get-in job [:connection :method])]
+  (let [r (get-in job [:target :method])]
     (cond
       (nil? r) false
       (= r "local") false
@@ -70,7 +70,7 @@
      :debug cmd}))
 
 (defn lines-task-loop [j f & more]
-  (let [l (get j :script)
+  (let [l (get j :apply)
         t (count l)
         break (atom 0)]
     (filter (fn [x] (map? x)) (map
@@ -83,21 +83,29 @@
                                (range t)))))
 
 (defn job [item]
-  (let [start (time-ms)
-        method (get item :method)
+  (let [_default {:name "lines"
+                  :stage "default"
+                  :target {:method "local"}
+                  :module "shell"
+                  :apply ["echo lines"]}
+        item (merge _default item)
+        start (time-ms)
         retries (lines-retries (get item :retries))
-        tasks (lines-job-retry retries (str "lines-job-" method) item)
+        result (let [module (get item :module)]
+                (do
+                 (load-once (str "src/modules/" module ".clj"))
+                 (lines-job-retry retries (str "lines-module-" module) item)))
         pipestatus (map (fn [l]
-                          (map (fn [x] (get x :exit-code)) l)) tasks)
+                          (map (fn [x] (get x :exit-code)) l)) result)
         status (lines-job-status (apply concat pipestatus))
-        result (assoc item
-                      :attempts (count tasks)
+        bundle (assoc item
+                      :attempts (count result)
                       :start start
                       :finished (time-ms)
                       :pipestatus pipestatus
                       :status status
-                      :tasks tasks)]
-    (if (or status (get item :allow_failure)) result (throw result))))
+                      :result result)]
+    (if (or status (get item :ignore-error)) bundle (throw bundle))))
 
 (defn parallel [items]
   (let [r (pmap (fn [item] (try*
@@ -105,3 +113,6 @@
                             (catch* ex ex))) items)
         e (reduce (fn [a b] (and a b)) true (map (fn [j] (get j :status)) r))]
     (if e r (throw r))))
+
+(defn pipeline [p]
+  (println (map job (read-string (slurp p)))))
