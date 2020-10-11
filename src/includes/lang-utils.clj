@@ -41,3 +41,11 @@
 
 (defn odd? [n]
   (if (= (even? n) true) false true))
+
+(def load-once-mem! (atom []))
+
+(defn load-once [f]
+  (let [loaded? (filter (fn [a] (if (= a f) true false)) @load-once-mem!)]
+    (if (empty? loaded?) (do
+                           (load-file-without-hashbang f)
+                           (swap! load-once-mem! concat [f])))))
