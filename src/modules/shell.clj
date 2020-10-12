@@ -46,8 +46,6 @@
               (str-shell-entrypoint (get-in job [:args :entrypoint]))
               "$'"
               "export"
-              (str-shell-variable "BRANCH_NAME" branch)
-              (str-shell-variable "BRANCH_NAME_SLUG" (str-slug branch))
               (str-shell-job-variables (get job :vars))
               ";"
               (str-escapes script-index)

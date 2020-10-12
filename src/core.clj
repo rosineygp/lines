@@ -33,14 +33,29 @@
       (keyword? :else) true)))
 
 ; job defaults
-(defn lines-job-default-options [item]
-  (let [d {:name "lines"
-           :stage "default"
-           :target {:method "local"}
-           :module "shell"
-           :args {}
-           :apply ["echo lines"]}]
-    (merge d item)))
+(defn lines-job-default-options []
+  {:name "lines"
+   :stage "default"
+   :target {:method "local"}
+   :module "shell"
+   :args {}})
+
+(defn lines-job-default-vars [item]
+  (let [b (branch-or-tag-name)
+        a (if (get item :vars) (get item :vars) {})]
+    (merge a
+           (hash-map "BRANCH_NAME" b
+                     "BRANCH_NAME_SLUG" (str-slug b)))))
+
+(defn lines-module-args [i]
+  (let [f (str "line-module-args-" (get i :module))
+        a (if (get i :args) (get i :args) {})]
+    (if (callable? f) ((call f) a) {})))
+
+(defn lines-module-vars [i]
+  (let [f (str "line-module-vars-" (get i :module))
+        v (if (get i :vars) (get i :vars) {})]
+    (if (callable? f) ((call f) v) {})))
 
 ; job handler
 (defn lines-job-status [l]
@@ -92,9 +107,14 @@
                                (range t)))))
 
 (defn job [item]
-  (let [item (let [t (lines-job-default-options item)
-                   f (str "line-module-args-" (get t :module))]
-               (if (callable? f) (assoc t :args ((call f) (get t :args))) t))
+  (let [common-vars (lines-job-default-vars item)
+        common-opts (lines-job-default-options)
+        module-vars (lines-module-vars item)
+        module-args (lines-module-args item)
+        item (let [i (merge common-opts item)]
+               (assoc i 
+                      :vars (merge common-vars module-vars)
+                      :args module-args))
         start (time-ms)
         retries (lines-retries (get item :retries))
         result (let [module (get item :module)]
