@@ -125,7 +125,7 @@
                    (lines-job-retry retries (str "lines-module-" module) item)))
         pipestatus (map (fn [l]
                           (map (fn [x] (get x :exit-code)) l)) result)
-        status (lines-job-status (apply concat pipestatus))
+        status (lines-job-status (last pipestatus))
         bundle (assoc item
                       :attempts (count result)
                       :start start
