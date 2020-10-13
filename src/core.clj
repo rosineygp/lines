@@ -114,7 +114,7 @@
         item (let [i (merge common-opts item)]
                (assoc i 
                       :vars (merge common-vars module-vars)
-                      :args module-args))
+                      :args (merge module-args (get i :args))))
         start (time-ms)
         retries (lines-retries (get item :retries))
         result (let [module (get item :module)]
