@@ -1,12 +1,12 @@
-(defn or [& i]
-  (let [n (map (fn [a] (if (= a true) 1 0)) i)
-        r (reduce (fn [a b] (+ a b)) 0 n)]
-    (if (> r 0) true false)))
+(defn or [& more]
+  (let [c (count more)
+        o (first more)]
+    (if (<= c 1) o (if o o (apply or (rest more))))))
 
-(defn and [& i]
-  (let [n (map (fn [a] (if (= a true) 1 0)) i)
-        r (reduce (fn [a b] (+ a b)) 0 n)]
-    (if (= r (count n)) true false)))
+(defn and [& more]
+  (let [c (count more)
+        o (first more)]
+    (if (<= c 1) o (if o (apply and (rest more)) o))))
 
 (defn hashmap-list [l]
   (map (fn [k] (vector k (get l k))) (keys l)))
