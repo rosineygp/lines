@@ -39,6 +39,7 @@
    :target {:method "local"}
    :module "shell"
    :retries 0
+   :ignore-error false
    :args {}})
 
 (defn lines-job-default-vars [item]
