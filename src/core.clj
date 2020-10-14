@@ -38,6 +38,7 @@
    :stage "default"
    :target {:method "local"}
    :module "shell"
+   :retries 0
    :args {}})
 
 (defn lines-job-default-vars [item]
@@ -63,7 +64,7 @@
     (if (= exit-sum 0) true false)))
 
 (defn lines-retries [r]
-  (if r (if (> r max-attempts) max-attempts r) 0))
+  (if (> r max-attempts) max-attempts r))
 
 (defn lines-job-retry-inner [retries k! f job]
   (let [r ((call f) job)
@@ -114,15 +115,15 @@
         item (let [i (merge common-opts item)]
                (assoc i 
                       :vars (merge common-vars module-vars)
-                      :args (merge module-args (get i :args))))
+                      :args (merge module-args (get i :args))
+                      :retries (lines-retries (get i :retries))))
         start (time-ms)
-        retries (lines-retries (get item :retries))
         result (let [module (get item :module)]
                  (do
                    (if (not (or (= module "shell")
                                 (= module "docker")
                                 (= module "scp"))) (load-once (str "src/modules/" module ".clj")))
-                   (lines-job-retry retries (str "lines-module-" module) item)))
+                   (lines-job-retry (get item :retries) (str "lines-module-" module) item)))
         pipestatus (map (fn [l]
                           (map (fn [x] (get x :exit-code)) l)) result)
         status (lines-job-status (last pipestatus))
