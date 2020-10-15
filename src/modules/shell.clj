@@ -24,15 +24,15 @@
       (sudo ["-u " user "--"])
       "")))
 
-(defn str-shell-variable [key value]
+(defn str-shell-var [key value]
   (str key "=\"" value "\""))
 
-(defn str-shell-job-variables [variables]
-  (if (not (nil? variables))
+(defn str-shell-job-vars [vars]
+  (if (not (nil? vars))
     (str-cmd (map
               (fn [key]
-                (str-shell-variable key (get variables key)))
-              (keys variables))) ""))
+                (str-shell-var key (get vars key)))
+              (keys vars))) ""))
 
 (defn str-shell-entrypoint [entrypoint]
   (str-cmd (if (nil? entrypoint) ["bash" "-c"] entrypoint)))
@@ -46,7 +46,7 @@
               (str-shell-entrypoint (get-in job [:args :entrypoint]))
               "$'"
               "export"
-              (str-shell-job-variables (get job :vars))
+              (str-shell-job-vars (get job :vars))
               ";"
               (str-escapes script-index)
               "'"
