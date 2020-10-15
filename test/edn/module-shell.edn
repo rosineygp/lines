@@ -1,0 +1,27 @@
+[{:apply ["echo hello lines"]}
+ {:name "variables test"
+  :vars {MY_VAR_0 "lines"
+         MY_VAR_1 "go"}
+  :apply ["echo $MY_VAR_0"
+          "echo $MY_VAR_1"]}
+ {:name "sudo test"
+  :args {:sudo true}
+  :apply ["apt-get update"
+          "apt-get upgrade -y"]}
+ {:name "change user"
+  :args {:sudo true
+         :user "nobody"}
+  :apply ["whoami"]}
+ {:name "change entrypoint"
+  :args {:entrypoint ["sh" "-c"]}
+  :apply ["echo hello sh!"]}
+ {:name "pipes"
+  :apply ["printenv | sort"]}
+ {:name "ignore erros"
+  :ignore-error true
+  :apply ["echo hello world!"
+          "exit 1"]}
+ {:name "retry test"
+  :retries 2
+  :apply ["echo ok"
+          "ping -c 1 8.8.8.$(shuf -i 7-8 -n 1)"]}]
