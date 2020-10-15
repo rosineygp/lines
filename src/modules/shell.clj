@@ -3,8 +3,8 @@
           "sshpass"])
 
 (defn str-target-ssh [c]
-  (let [user (if (get c :user) (get c :user) (env "USER"))
-        port (if (get c :port) (get c :port) 22)
+  (let [user (or (get c :user) (env "USER"))
+        port (or (get c :port) 22)
         common (ssh [(str user "@" (get c :host))
                      "-p"
                      port])]
@@ -18,8 +18,8 @@
       (keyword? :else) common)))
 
 (defn str-shell-sudo [job]
-  (let [user (if (get-in job [:target :user]) (get-in job [:target :user]) "root")
-        sudo? (if (= (get-in job [:args :sudo]) true) true false)]
+  (let [user (or (get-in job [:target :user]) "root")
+        sudo? (or (get-in job [:args :sudo]) false)]
     (if (or sudo? (not (= user "root")))
       (sudo ["-u " user "--"])
       "")))
