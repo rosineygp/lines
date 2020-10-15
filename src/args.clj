@@ -1,14 +1,24 @@
 (defn help []
   (println "Usage: lines [OPTION]... [FILE]...
 A pure bash clojureish CI pipeline.
+version: 0.0.0
 
 Options:
 -i, --inventory     inventory file.
 -p, --pipeline      pipeline file.
 -c, --clojure       for clj file (pure clojure pipeline)
+-v, --version       show current version.
 
 Otherwise:
 run .lines.edn or .lines.clj"))
+
+(defn version []
+  (println "lines, version: 0.0.0"))
+
+(defn help-and-exit [exit-code]
+  (do
+    (help)
+    (exit! (or exit-code 0))))
 
 (defn options [o]
   (cond
@@ -23,16 +33,18 @@ run .lines.edn or .lines.clj"))
 (defn read-args []
   (let [n (count *ARGV*)]
     (cond
-      (= n 0) (cond 
+      (= n 0) (cond
                 (file-exists? ".lines.edn") (hash-map :pipeline ".lines.edn")
                 (file-exists? ".lines.clj") (hash-map :clojure ".lines.clj")
-                (keyword? :else) (do 
-                                    (help) 
-                                    (exit! 1)))
-      (and (= n 1)
-           (or (= (first *ARGV*) "-h") (= (first *ARGV*) "--help"))) (do
-                                                                       (help)
-                                                                       (exit! 0))
+                (keyword? :else) (help-and-exit 1))
+      (= n 1) (cond
+                (or (= (first *ARGV*) "-h")
+                    (= (first *ARGV*) "--help")) (help-and-exit 0)
+                (or (= (first *ARGV*) "-v")
+                    (= (first *ARGV*) "--version")) (do
+                                                      (version)
+                                                      (exit! 0))
+                (keyword? :else) (help-and-exit 1))           
       (odd? n) (do
                  (println "Parameter error:")
                  (help)
