@@ -3,15 +3,6 @@
 (load-file-without-hashbang "src/includes/use.clj")
 (load-file-without-hashbang "src/core.clj")
 
-(use ["date" "git"])
-
-(deftest "str-date-time"
-  (testing "return type"
-    (is (= (string? (str-date-time)) true)))
-
-  (testing "time format (lenght)"
-    (is (= (count (seq (str-date-time))) 19))))
-
 (deftest "str-slug"
   (testing "to lower case"
     (is (= (str-slug "UPPERCASE") "uppercase")))
