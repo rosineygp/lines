@@ -145,4 +145,7 @@
     (if e r (throw r))))
 
 (defn pipeline [p]
-  (prn (map job (read-string (slurp p)))))
+  (let [r (map job (read-string (slurp p)))]
+    (do
+      (lines-pp r)
+      r)))
