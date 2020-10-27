@@ -46,6 +46,9 @@
 (defn lines-pp-start [time]
   (str (cyan "start:") " " (timemillis-to-date time)))
 
+(defn lines-pp-stage [stage]
+  (str (blue "stage:") " " stage))
+
 (defn lines-pp-finished [time]
   (let [date-time (timemillis-to-date time)
         size (count (seq date-time))]
@@ -64,6 +67,7 @@
   (map (fn [i]
          (do
            (println (lines-pp-title (get i :name)))
+           (println (lines-pp-stage (get i :stage)))
            (println (lines-pp-start (get i :start)))
            (map (fn [l]
                   (println (lines-pp-script l))) (get i :result))
