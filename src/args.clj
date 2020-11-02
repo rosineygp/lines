@@ -6,7 +6,7 @@ version: 0.0.0
 Options:
 -i, --inventory     inventory file.
 -p, --pipeline      pipeline file.
--j, --job           run only named job name.
+-j, --job           filter jobs by :name.
 -c, --clojure       for clj file (pure clojure pipeline)
 -v, --version       show current version.
 

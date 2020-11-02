@@ -144,9 +144,15 @@
         e (reduce (fn [a b] (and a b)) true (map (fn [j] (get j :status)) r))]
     (if e r (throw r))))
 
+(defn filter-job [p j]
+  (filter (fn [x] (not (empty? x))) (map (fn [i] (if (vector? i)
+                                                   (filter-job i j)
+                                                   (if (= (get i :name) j) i))) p)))
+
 (defn pipeline [args]
   (let [l (read-string (slurp (get args :pipeline)))
-        r (map (fn [i] (if (vector? i) (parallel i) (job i))) l)]
+        f (if (get args :job-name) (filter-job l (get args :job-name)) l) 
+        r (map (fn [i] (if (or (vector? i) (list? i)) (parallel i) (job i))) f)]
     (do
       (lines-pp r)
       r)))
