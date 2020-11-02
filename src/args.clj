@@ -6,6 +6,7 @@ version: 0.0.0
 Options:
 -i, --inventory     inventory file.
 -p, --pipeline      pipeline file.
+-j, --job           run only named job name.
 -c, --clojure       for clj file (pure clojure pipeline)
 -v, --version       show current version.
 
@@ -25,6 +26,7 @@ run .lines.edn or .lines.clj"))
     (or (= o "-p") (= o "--pipeline")) (keyword "pipeline")
     (or (= o "-c") (= o "--clojure")) (keyword "clojure")
     (or (= o "-i") (= o "--inventory")) (keyword "inventory")
+    (or (= o "-j") (= o "--job")) (keyword "job-name")
     (keyword? :else) (do
                        (println (str "Parameter not found: " o))
                        (help)

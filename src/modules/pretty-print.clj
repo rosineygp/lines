@@ -65,11 +65,16 @@
 
 (defn lines-pp [l]
   (map (fn [i]
-         (do
-           (println (lines-pp-title (get i :name)))
-           (println (lines-pp-stage (get i :stage)))
-           (println (lines-pp-start (get i :start)))
-           (map (fn [l]
-                  (println (lines-pp-script l))) (get i :result))
-           (println (lines-pp-status (get i :status)))
-           (println (lines-pp-finished (get i :finished))))) l))
+         (if (list? i)
+           (do
+             (println (str "\n" (bold (magenta (str "parallel: " (count i))))))
+             (lines-pp i)
+             (println))
+           (do
+             (println (lines-pp-title (get i :name)))
+             (println (lines-pp-stage (get i :stage)))
+             (println (lines-pp-start (get i :start)))
+             (map (fn [l]
+                    (println (lines-pp-script l))) (get i :result))
+             (println (lines-pp-status (get i :status)))
+             (println (lines-pp-finished (get i :finished)))))) l))

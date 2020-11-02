@@ -144,8 +144,9 @@
         e (reduce (fn [a b] (and a b)) true (map (fn [j] (get j :status)) r))]
     (if e r (throw r))))
 
-(defn pipeline [p]
-  (let [r (map job (read-string (slurp p)))]
+(defn pipeline [args]
+  (let [l (read-string (slurp (get args :pipeline)))
+        r (map (fn [i] (if (vector? i) (parallel i) (job i))) l)]
     (do
       (lines-pp r)
       r)))

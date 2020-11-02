@@ -21,4 +21,4 @@
 (def ttl (or (env "LINES_JOB_TTL") 3600))
 (def max-attempts (or (env "LINES_JOB_MAX_ATTEMPTS") 2))
 
-(pipeline (get args :pipeline))
+(pipeline args)
