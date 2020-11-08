@@ -7,6 +7,7 @@ Options:
 -i, --inventory     inventory file.
 -p, --pipeline      pipeline file.
 -j, --job           filter jobs by :name.
+-g, --group         filter jobs by :groups.
 -c, --clojure       for clj file (pure clojure pipeline)
 -v, --version       show current version.
 
@@ -27,6 +28,7 @@ run .lines.edn or .lines.clj"))
     (or (= o "-c") (= o "--clojure")) (keyword "clojure")
     (or (= o "-i") (= o "--inventory")) (keyword "inventory")
     (or (= o "-j") (= o "--job")) (keyword "job-name")
+    (or (= o "-g") (= o "--group")) (keyword "group")
     (keyword? :else) (do
                        (println (str "Parameter not found: " o))
                        (help)

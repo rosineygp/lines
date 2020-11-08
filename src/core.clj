@@ -35,7 +35,7 @@
 ; job defaults
 (defn lines-job-default-options []
   {:name "lines"
-   :stage "default"
+   :groups [ "default" ]
    :target {:method "local"}
    :module "shell"
    :retries 0
@@ -114,7 +114,7 @@
         module-vars (lines-module-vars item)
         module-args (lines-module-args item)
         item (let [i (merge common-opts item)]
-               (assoc i 
+               (assoc i
                       :vars (merge common-vars module-vars)
                       :args (merge module-args (get i :args))
                       :retries (lines-retries (get i :retries))))
@@ -149,10 +149,16 @@
                                                    (filter-job i j)
                                                    (if (= (get i :name) j) i))) p)))
 
+(defn filter-groups [p g]
+  (filter (fn [x] (not (empty? x))) (map (fn [i] (if (vector? i)
+                                                    (filter-groups i g)
+                                                    (if (not (empty? (filter (fn [x] (= x g)) (get i :groups)))) i))) p)))
+
 (defn pipeline [args]
   (let [l (read-string (slurp (get args :pipeline)))
-        f (if (get args :job-name) (filter-job l (get args :job-name)) l) 
-        r (map (fn [i] (if (or (vector? i) (list? i)) (parallel i) (job i))) f)]
+        j (if (get args :job-name) (filter-job l (get args :job-name)) l)
+        g (if (get args :group) (filter-groups j (get args :group)) j)
+        r (map (fn [i] (if (or (vector? i) (list? i)) (parallel i) (job i))) g)]
     (do
       (lines-pp r)
       r)))
