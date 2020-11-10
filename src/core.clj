@@ -35,7 +35,6 @@
 ; job defaults
 (defn lines-job-default-options []
   {:name "lines"
-   :groups [ "default" ]
    :target {:method "local"}
    :module "shell"
    :retries 0
@@ -144,21 +143,18 @@
         e (reduce (fn [a b] (and a b)) true (map (fn [j] (get j :status)) r))]
     (if e r (throw r))))
 
-(defn filter-job [p j]
-  (filter (fn [x] (not (empty? x))) (map (fn [i] (if (vector? i)
-                                                   (filter-job i j)
-                                                   (if (= (get i :name) j) i))) p)))
-
-(defn filter-groups [p g]
-  (filter (fn [x] (not (empty? x))) (map (fn [i] (if (vector? i)
-                                                    (filter-groups i g)
-                                                    (if (not (empty? (filter (fn [x] (= x g)) (get i :groups)))) i))) p)))
+(defn filter-kv [p k]
+  (filter (fn [x] (not (empty? x)))
+          (map (fn [i] (if (vector? i)
+                         (filter-kv i k)
+                         (if (not (empty? (filter (fn [x] (= x (val k)))
+                                                  (to-list (get i (key k)))))) i))) p)))
 
 (defn pipeline [args]
   (let [l (read-string (slurp (get args :pipeline)))
-        j (if (get args :job-name) (filter-job l (get args :job-name)) l)
-        g (if (get args :group) (filter-groups j (get args :group)) j)
-        r (map (fn [i] (if (or (vector? i) (list? i)) (parallel i) (job i))) g)]
+        fj (if (get args :filter-job) (str-split-key-val (get args :filter-job)))
+        j (if fj (filter-kv l fj) l)
+        r (map (fn [i] (if (or (vector? i) (list? i)) (parallel i) (job i))) j)]
     (do
       (lines-pp r)
       r)))

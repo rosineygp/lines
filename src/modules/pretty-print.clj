@@ -46,9 +46,6 @@
 (defn lines-pp-start [time]
   (str (cyan "start:") " " (timemillis-to-date time)))
 
-(defn lines-pp-groups [groups]
-  (str (blue "groups:") " " (apply str-join ", " groups)))
-
 (defn lines-pp-finished [time]
   (let [date-time (timemillis-to-date time)
         size (count (seq date-time))]
@@ -72,7 +69,6 @@
              (println))
            (do
              (println (lines-pp-title (get i :name)))
-             (println (lines-pp-groups (get i :groups)))
              (println (lines-pp-start (get i :start)))
              (map (fn [l]
                     (println (lines-pp-script l))) (get i :result))

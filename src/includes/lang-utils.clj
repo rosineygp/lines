@@ -49,3 +49,16 @@
     (if (empty? loaded?) (do
                            (load-file-without-hashbang f)
                            (swap! load-once-mem! concat [f])))))
+
+(defn key [k]
+  (first (keys k)))
+
+(defn val [k]
+  (first (vals k)))
+
+(defn to-list [v]
+  (if (sequential? v) v (list v)))
+
+(defn str-split-key-val [s]
+  (let [s (str-split s "=")]
+    (hash-map (keyword (nth s 0)) (nth s 1))))
