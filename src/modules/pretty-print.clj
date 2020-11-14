@@ -63,7 +63,7 @@
 
 (defn lines-pp [l]
   (map (fn [i]
-         (if (list? i)
+         (if (sequential? i)
            (do
              (println (bold (magenta (str "parallel: " (count i) " { "))))
              (lines-pp i)
@@ -76,3 +76,12 @@
                     (println (lines-pp-script l))) (get i :result))
              (println (lines-pp-status (get i :status)))
              (println (lines-pp-finished (get i :finished)))))) l))
+
+(defn lines-pp-minimal [l]
+  (map (fn [i]
+         (if (sequential? i)
+           (lines-pp-minimal i)
+           (println
+            (blue ":job") (get i :name)
+            (magenta ":target") (or (get-in i [:target :label]) (get-in i [:target :host]))
+            (green ":status") (get i :status)))) l))

@@ -10,6 +10,8 @@ Options:
                           ex: 'name=job 1', 'groups=lint'.
 -l, --filter-inventory    filter hosts by any keyword. 
                           ex 'label=linux01', 'method=ssh'.
+-o, --output              output method: [default, minimal, edn].
+                          otherwise: default
 -c, --clojure             for clj file (pure clojure pipeline)
 -v, --version             show current version.
 
@@ -31,6 +33,7 @@ lookup for .lines.edn or .lines.clj"))
     (or (= o "-i") (= o "--inventory")) (keyword "inventory")
     (or (= o "-j") (= o "--filter-job")) (keyword "filter-job")
     (or (= o "-l") (= o "--filter-inventory")) (keyword "filter-inventory")
+    (or (= o "-o") (= o "--output")) (keyword "output")
     (keyword? :else) (do
                        (println (str "Parameter not found: " o))
                        (help)
