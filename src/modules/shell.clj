@@ -18,7 +18,7 @@
       (keyword? :else) common)))
 
 (defn str-shell-sudo [job]
-  (let [user (or (get-in job [:target :user]) "root")
+  (let [user (or (get-in job [:args :user]) "root")
         sudo? (or (get-in job [:args :sudo]) false)]
     (if (or sudo? (not (= user "root")))
       (sudo ["-u " user "--"])
