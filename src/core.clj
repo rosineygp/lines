@@ -35,7 +35,7 @@
 ; job defaults
 (defn lines-job-default-options []
   {:name "lines"
-   :target {:method "local"}
+   :target {:method "local" :label "local"}
    :module "shell"
    :retries 0
    :ignore-error false
@@ -145,16 +145,27 @@
 
 (defn filter-kv [p k]
   (filter (fn [x] (not (empty? x)))
-          (map (fn [i] (if (vector? i)
+          (map (fn [i] (if (sequential? i)
                          (filter-kv i k)
                          (if (not (empty? (filter (fn [x] (= x (val k)))
                                                   (to-list (get i (key k)))))) i))) p)))
 
+(defn merge-job-targets [j t]
+  (if (sequential? j)
+    (map (fn [i] (merge-job-targets i t)) j)
+    (map (fn [i] (assoc j :target i)) t)))
+                                                  
 (defn pipeline [args]
   (let [l (read-string (slurp (get args :pipeline)))
-        fj (if (get args :filter-job) (str-split-key-val (get args :filter-job)))
-        j (if fj (filter-kv l fj) l)
-        r (map (fn [i] (if (or (vector? i) (list? i)) (parallel i) (job i))) j)]
+        l (if (get args :filter-job) (filter-kv l (str-split-key-val (get args :filter-job))) l)
+        t (if (get args :inventory) (read-string (slurp (get args :inventory))))
+        t (if (get args :filter-host) (filter-kv t (str-split-key-val (get args :filter-host))) t)
+        r (map (fn [j]
+                 (cond
+                   (and (sequential? j) (sequential? t)) (pmap parallel (merge-job-targets j t))
+                   (sequential? t) (parallel (merge-job-targets j t))
+                   (sequential? j) (parallel j)
+                   (keyword? :else) (do (println "5") (job j)))) l)]
     (do
       (lines-pp r)
       r)))

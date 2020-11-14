@@ -7,6 +7,7 @@ Options:
 -i, --inventory     inventory file.
 -p, --pipeline      pipeline file.
 -j, --filter-job    filter jobs by any keyword. ex: 'name=job 1', 'groups=lint'.
+-l, --filter-host   filter hosts by any keyword. ex 'label=linux01', 'method=ssh'.
 -c, --clojure       for clj file (pure clojure pipeline)
 -v, --version       show current version.
 
@@ -27,6 +28,7 @@ run .lines.edn or .lines.clj"))
     (or (= o "-c") (= o "--clojure")) (keyword "clojure")
     (or (= o "-i") (= o "--inventory")) (keyword "inventory")
     (or (= o "-j") (= o "--filter-job")) (keyword "filter-job")
+    (or (= o "-l") (= o "--filter-host")) (keyword "filter-host")
     (keyword? :else) (do
                        (println (str "Parameter not found: " o))
                        (help)
