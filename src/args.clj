@@ -1,18 +1,20 @@
 (defn help []
-  (println "Usage: lines [OPTION]... [FILE]...
+  (println "Usage: lines [OPTION]...
 A pure bash clojureish CI pipeline.
 version: 0.0.0
 
 Options:
--i, --inventory     inventory file.
--p, --pipeline      pipeline file.
--j, --filter-job    filter jobs by any keyword. ex: 'name=job 1', 'groups=lint'.
--l, --filter-host   filter hosts by any keyword. ex 'label=linux01', 'method=ssh'.
--c, --clojure       for clj file (pure clojure pipeline)
--v, --version       show current version.
+-i, --inventory           inventory file.
+-p, --pipeline            pipeline file.
+-j, --filter-job          filter jobs by any keyword. 
+                          ex: 'name=job 1', 'groups=lint'.
+-l, --filter-inventory    filter hosts by any keyword. 
+                          ex 'label=linux01', 'method=ssh'.
+-c, --clojure             for clj file (pure clojure pipeline)
+-v, --version             show current version.
 
 Otherwise:
-run .lines.edn or .lines.clj"))
+lookup for .lines.edn or .lines.clj"))
 
 (defn version []
   (println "lines, version: 0.0.0"))
@@ -28,7 +30,7 @@ run .lines.edn or .lines.clj"))
     (or (= o "-c") (= o "--clojure")) (keyword "clojure")
     (or (= o "-i") (= o "--inventory")) (keyword "inventory")
     (or (= o "-j") (= o "--filter-job")) (keyword "filter-job")
-    (or (= o "-l") (= o "--filter-host")) (keyword "filter-host")
+    (or (= o "-l") (= o "--filter-inventory")) (keyword "filter-inventory")
     (keyword? :else) (do
                        (println (str "Parameter not found: " o))
                        (help)

@@ -155,17 +155,15 @@
     (map (fn [i] (merge-job-targets i t)) j)
     (map (fn [i] (assoc j :target i)) t)))
                                                   
-(defn pipeline [args]
-  (let [l (read-string (slurp (get args :pipeline)))
-        l (if (get args :filter-job) (filter-kv l (str-split-key-val (get args :filter-job))) l)
-        t (if (get args :inventory) (read-string (slurp (get args :inventory))))
-        t (if (get args :filter-host) (filter-kv t (str-split-key-val (get args :filter-host))) t)
-        r (map (fn [j]
-                 (cond
+(defn pipeline [pipe]
+  (let [l (if (get pipe :filter-job)
+            (filter-kv (get pipe :jobs) (str-split-key-val (get pipe :filter-job)))
+            (get pipe :jobs))
+        t (if (get pipe :filter-inventory)
+            (filter-kv (get pipe :inventory) (str-split-key-val (get pipe :filter-inventory)))
+            (get pipe :inventory))]
+    (map (fn [j] (cond
                    (and (sequential? j) (sequential? t)) (pmap parallel (merge-job-targets j t))
                    (sequential? t) (parallel (merge-job-targets j t))
                    (sequential? j) (parallel j)
-                   (keyword? :else) (do (println "5") (job j)))) l)]
-    (do
-      (lines-pp r)
-      r)))
+                   (keyword? :else) (job j))) l)))
