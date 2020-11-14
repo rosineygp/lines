@@ -11,9 +11,7 @@
   (apply str (map (fn [] (str s)) (range n))))
 
 (defn lines-pp-cmd-command [line]
-  (str (green "  cmd:") 
-    (if (= (str-subs (get line :debug) 1 4) "sudo") " # " " $ ")
-    (get line :cmd)))
+  (str (green "  cmd: ") (get line :cmd)))
 
 (defn lines-pp-cmd-stdout [line]
   (if (= (empty? (get line :stdout)) false) (str (str-indent (get line :stdout) 4) "\n") ""))
@@ -38,6 +36,9 @@
 
 (defn lines-pp-name [result]
   (str (magenta "name:") " " (get result :name)))
+
+(defn lines-pp-target-label [label]
+    (str (magenta "target:") " " label))
 
 (defn lines-pp-title [title]
   (let [size (count (seq title))]
@@ -64,11 +65,12 @@
   (map (fn [i]
          (if (list? i)
            (do
-             (println (str "\n" (bold (magenta (str "parallel: " (count i))))))
+             (println (bold (magenta (str "parallel: " (count i) " { "))))
              (lines-pp i)
-             (println))
+             (println (bold (magenta "}"))))
            (do
              (println (lines-pp-title (get i :name)))
+             (println (lines-pp-target-label (or (get-in i [:target :label]) (get-in i [:target :host]))))
              (println (lines-pp-start (get i :start)))
              (map (fn [l]
                     (println (lines-pp-script l))) (get i :result))
