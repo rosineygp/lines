@@ -1,28 +1,15 @@
 (str-use ["sudo"
-          "ssh"
-          "sshpass"])
+          "ssh"])
 
 (defn str-target-ssh [c]
-  (let [user (or (get c :user) (env "USER"))
-        port (or (get c :port) 22)
-        common (ssh [(str user "@" (get c :host))
-                     "-p"
-                     port])]
-    (cond
-      (key-exist? c :key) (str-cmd [common
-                                    "-i"
-                                    (get c :key)])
-      (key-exist? c :password) (sshpass ["-p"
-                                         (str "'" (get c :password) "'")
-                                         common])
-      (keyword? :else) common)))
+    (ssh [(str (or (get c :user) (env "USER")) "@" (get c :host)) 
+          "-p" (or (get c :port) 22)]))
 
 (defn str-shell-sudo [job]
   (let [user (or (get-in job [:args :user]) "root")
         sudo? (or (get-in job [:args :sudo]) false)]
     (if (or sudo? (not (= user "root")))
-      (sudo ["-u " user "--"])
-      "")))
+      (sudo ["-u " user "--"]) "")))
 
 (defn str-shell-var [key value]
   (str key "=\"" value "\""))
