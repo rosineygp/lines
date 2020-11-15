@@ -140,7 +140,7 @@
   (let [r (pmap (fn [item] (try*
                             (job item)
                             (catch* ex ex))) items)
-        e (reduce (fn [a b] (and a b)) true (map (fn [j] (get j :status)) r))]
+        e (reduce (fn [a b] (and a b)) true (map (fn [j] (or (get j :status) (get j :ignore-error))) r))]
     (if e r (throw r))))
 
 (defn filter-kv [p k]
