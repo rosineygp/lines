@@ -10,7 +10,7 @@
 (load-file-without-hashbang "src/modules/pretty-print.clj")
 (load-file-without-hashbang "src/modules/docker.clj")
 (load-file-without-hashbang "src/modules/shell.clj")
-; (load-file-without-hashbang "src/modules/scp.clj")
+(load-file-without-hashbang "src/modules/scp.clj")
 
 (use ["pwd"])
 
