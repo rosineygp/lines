@@ -92,9 +92,9 @@
         trap (lines-docker-traps (concat [{:id instance :type "container"}]
                                          (map (fn [item] {:id item :type "container"}) services-names)
                                          [{:id network-name :type "network"}]))
-        services (if (get item [:args :services])
+        services (if (get-in item [:args :services])
                    (map
-                    (fn [i] (str-lines-docker-run-service (nth (get item [:args :services]) i) (nth services-names i) network-name))
+                    (fn [i] (str-lines-docker-run-service (nth (get-in item [:args :services]) i) (nth services-names i) network-name))
                     (range (count services-names))))
         upload-files (if (isremote? item)
                        (job {:name (str "upload-files: " (get item :name))
@@ -117,7 +117,7 @@
                            :apply (concat (map (fn [path]
                                                  (str-lines-docker-cp-pull instance path)) (get-in item [:args :artifacts :paths]))
                                           [(str-lines-docker-instance-rm instance)]
-                                          (if (get item [:args :services])
+                                          (if (get-in item [:args :services])
                                             (map (fn [n] (str-lines-docker-instance-rm n)) services-names))
                                           [(str-lines-docker-network-rm network-name)])})]
     (concat (nth (get before-script :result) 0)
