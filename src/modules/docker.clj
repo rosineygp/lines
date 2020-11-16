@@ -84,9 +84,8 @@
   (let [d {:image "alpine"}]
     (merge d args)))
 
-; semi bonito mas precisa caprichar na implementação de copia e testar melhor remoto e local
 (defn lines-module-docker [item]
-  (let [instance (str (get item :name) "-" (time-ms))
+  (let [instance (str (str-slug (get item :name)) "-" (time-ms))
         network-name instance
         services-names (if (get-in item [:args :services])
                          (map (fn [n] (str "srv-" n "-" instance)) (range (count (get-in item [:args :services])))))
@@ -97,12 +96,18 @@
                    (map
                     (fn [i] (str-lines-docker-run-service (nth (get item [:args :services]) i) (nth services-names i) network-name))
                     (range (count services-names))))
+        upload-files (if (isremote? item)
+                       (job {:name (str "upload-files: " (get item :name))
+                             :target (get item :target)
+                             :module "scp"
+                             :apply [{:src current-path :recursive true :dest (str "/tmp/" instance)}]}))
         before-script (job {:name (str "before-script: " (get item :name))
                             :module "shell"
                             :target (get item :target)
                             :apply (concat [(str-lines-docker-network network-name)]
                                            services
-                                           [(str-lines-docker-run item instance network-name)])})
+                                           [(str-lines-docker-run item instance network-name)]
+                                           [(str-lines-docker-cp-push instance (if (isremote? item) (str "/tmp/" instance "/.") (str current-path "/.")) (str repos "/"))])})
         script (lines-task-loop (assoc item
                                        :apply (map (fn [line]
                                                      (str-lines-docker-exec item line instance)) (get item :apply))) str-shell-command-line)
