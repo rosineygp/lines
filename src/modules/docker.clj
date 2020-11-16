@@ -86,28 +86,27 @@
 
 (defn lines-module-docker [item]
   (let [instance (str (str-slug (get item :name)) "-" (time-ms))
+        remote? (isremote? item)
+        services-list (get-in item [:args :services])
         network-name instance
-        services-names (if (get-in item [:args :services])
-                         (map (fn [n] (str "srv-" n "-" instance)) (range (count (get-in item [:args :services])))))
+        services-names (if services-list (map (fn [n] (str "srv-" n "-" instance)) (range (count services-list))))
         trap (lines-docker-traps (concat [{:id instance :type "container"}]
                                          (map (fn [item] {:id item :type "container"}) services-names)
                                          [{:id network-name :type "network"}]))
-        services (if (get-in item [:args :services])
-                   (map
-                    (fn [i] (str-lines-docker-run-service (nth (get-in item [:args :services]) i) (nth services-names i) network-name))
-                    (range (count services-names))))
-        upload-files (if (isremote? item)
-                       (job {:name (str "upload-files: " (get item :name))
-                             :target (get item :target)
-                             :module "scp"
-                             :apply [{:src current-path :recursive true :dest (str "/tmp/" instance)}]}))
+        services (if services-list (map
+                                    (fn [i] (str-lines-docker-run-service (nth services-list i) (nth services-names i) network-name))
+                                    (range (count services-names))))
+        upload-files (if remote? (job {:name (str "upload-files: " (get item :name))
+                                       :target (get item :target)
+                                       :module "scp"
+                                       :apply [{:src current-path :recursive true :dest (str "/tmp/" instance)}]}))
         before-script (job {:name (str "before-script: " (get item :name))
                             :module "shell"
                             :target (get item :target)
                             :apply (concat [(str-lines-docker-network network-name)]
                                            services
                                            [(str-lines-docker-run item instance network-name)]
-                                           [(str-lines-docker-cp-push instance (if (isremote? item) (str "/tmp/" instance "/.") (str current-path "/.")) (str repos "/"))])})
+                                           [(str-lines-docker-cp-push instance (if remote? (str "/tmp/" instance "/.") (str current-path "/.")) (str repos "/"))])})
         script (lines-task-loop (assoc item
                                        :apply (map (fn [line]
                                                      (str-lines-docker-exec item line instance)) (get item :apply))) str-shell-command-line)
@@ -117,9 +116,9 @@
                            :apply (concat (map (fn [path]
                                                  (str-lines-docker-cp-pull instance path)) (get-in item [:args :artifacts :paths]))
                                           [(str-lines-docker-instance-rm instance)]
-                                          (if (get-in item [:args :services])
-                                            (map (fn [n] (str-lines-docker-instance-rm n)) services-names))
+                                          (if services-list (map (fn [n] (str-lines-docker-instance-rm n)) services-names))
                                           [(str-lines-docker-network-rm network-name)])})]
-    (concat (nth (get before-script :result) 0)
+    (concat (if remote? (nth (get upload-files :result) 0))
+            (nth (get before-script :result) 0)
             script
             (nth (get after-script :result) 0))))
