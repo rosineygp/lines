@@ -15,7 +15,7 @@
   (reduce (fn [x y] (assoc x (first y) (last y))) a (hashmap-list b)))
 
 (defn key-name [k]
-  (if (keyword? k) (str-subs k 1) nil))
+  (if (keyword? k) (str-subs k 1) k))
 
 ; return function from string
 (defn call [f]
@@ -62,3 +62,8 @@
 (defn str-split-key-val [s]
   (let [s (str-split s "=")]
     (hash-map (keyword (nth s 0)) (nth s 1))))
+
+(defn spit [f content & options]
+  (if (empty? options)
+    (file-write f content)
+    (file-write f content (get (first options) :append))))
