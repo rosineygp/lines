@@ -24,15 +24,15 @@
            "--name" instance
            "--entrypoint" "''"
            "--env" (str "'BRANCH_NAME=" (branch-or-tag-name) "'")
-           (if (= (get job :privileged) true)
+           (if (= (get-in job [:args :privileged]) true)
              (apply str-join " " ["--privileged"
                                   "--volume"
                                   "/var/run/docker.sock:/var/run/docker.sock"]) "")
-           (if (get job :variables)
+           (if (get job :vars)
              (apply str-join " " (map
                                   (fn [key]
-                                    (str "--env '" key "=" (get (get job :variables) key) "'"))
-                                  (keys (get job :variables)))) "")
+                                    (str "--env '" key "=" (get (get job :vars) key) "'"))
+                                  (keys (get job :vars)))) "")
            "--workdir" repos
            (get-in job [:args :image])
            "sleep" ttl]))
