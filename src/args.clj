@@ -62,3 +62,5 @@ lookup for .lines.edn or .lines.clj"))
                                          (fn [a b] (merge a b)) {} (map
                                                                     (fn [s] (hash-map (options (nth *ARGV* s)) (nth *ARGV* (+ 1 s)))) (range 0 n 2)))]
                          parameters))))
+
+(def args (read-args))
