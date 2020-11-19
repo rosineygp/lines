@@ -1,0 +1,36 @@
+--- flk	2020-11-19 07:35:02.106637357 -0300
++++ new	2020-11-19 07:36:42.914239088 -0300
+@@ -1522,7 +1522,7 @@
+ _eval () { EVAL "${1}" "${REPL_ENV}"; }
+ _fref "eval" _eval
+ _list; argv="${r}"
+-for _arg in "${@:2}"; do _string "${_arg}"; _conj! "${argv}" "${r}"; done
++for _arg in "${@:1}"; do _string "${_arg}"; _conj! "${argv}" "${r}"; done
+ _symbol "__STAR__ARGV__STAR__"
+ ENV_SET "${REPL_ENV}" "${r}" "${argv}";
+ 
+@@ -1881,24 +1881,3 @@
+ __FLECK__INLINEMALFILE
+ REP "(do ${__FLECK__REPCAPTURE})";
+ REP "(def! *fleck-revision* \"24461e38\")"
+-( return 0 2>/dev/null ) && _fleck_sourced=1 || _fleck_sourced=0
+-
+-if [ "${_fleck_sourced}" = "0" ]
+-then
+-  # load/run file from command line (then exit)
+-  if [[ "${1}" ]]; then
+-    REP "(load-file-without-hashbang \"${1}\")"
+-    [ "${r}" = "nil" ] && exit 0 || { echo "${r}"; exit 127; };
+-  fi
+-
+-  # repl loop
+-  if [[ -t 0 ]]; then
+-    REP "(println (str \"Fleck \" *fleck-revision*))"
+-    while true; do
+-      READLINE "user> " || exit "$?"
+-      [[ "${r}" ]] && REP "(do ${r})" && echo "${r}"
+-    done
+-  else
+-    REP "(do `cat <&0` )"
+-  fi
+-fi

@@ -12,8 +12,24 @@ _command_exist() {
   fi
 }
 
+_code_block() {
+  local filter_call="load-file-without-hashbang"
+  local f="${1}"
+  local d="${2}"
+
+  HEREDOC="$(sed -E 's/(\/|\.|-)/_/g;s/[a-z]/\U&/g' <<< ${f})"
+
+{  
+    echo -e "\nread -d \"\" __FLECK__REPCAPTURE_${HEREDOC} << __LINES_INLINE_${HEREDOC}";
+    grep -v "$filter_call" "${f}" | sed 's/\\/\\\\\\\\/g';
+    echo -e "\n__LINES_INLINE_${HEREDOC}";
+    echo -e "\nREP \"(do \${__FLECK__REPCAPTURE_${HEREDOC}})\";";
+  } >> "${d}"
+}
+
 _command_exist "patch"
 _command_exist "curl"
+_command_exist "sed"
 
 flk_url="https://raw.githubusercontent.com/chr15m/flk/beabb477daac370f5fa52eabdec7dc977b944198/docs/flk"
 
@@ -22,8 +38,23 @@ curl "${flk_url}" > .flk
 
 for i in patches/*.flk.patch; do
   patch -i "$i" -u .flk
-done  
+done
 
 chmod +x .flk
+cp .flk flk
 
-mv .flk flk
+patch -i "patches/027-boot.lines.patch" -u .flk
+
+_code_block "src/includes/lang-utils.clj" ".flk"
+_code_block "src/args.clj" ".flk"
+_code_block "src/includes/use.clj" ".flk"
+_code_block "src/includes/colors.clj" ".flk"
+_code_block "src/core.clj" ".flk"
+_code_block "src/modules/pretty-print.clj" ".flk"
+_code_block "src/modules/docker.clj" ".flk"
+_code_block "src/modules/shell.clj" ".flk"
+_code_block "src/modules/template.clj" ".flk"
+_code_block "src/modules/scp.clj" ".flk" 
+_code_block "src/main.clj" ".flk" 
+
+mv .flk lines
