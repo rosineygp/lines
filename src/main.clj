@@ -10,6 +10,7 @@
 (load-file-without-hashbang "src/modules/pretty-print.clj")
 (load-file-without-hashbang "src/modules/docker.clj")
 (load-file-without-hashbang "src/modules/shell.clj")
+(load-file-without-hashbang "src/modules/template.clj")
 (load-file-without-hashbang "src/modules/scp.clj")
 
 (use ["pwd"])
@@ -17,6 +18,7 @@
 (def current-path (nth (pwd) 0))
 (def current-dir (last (str-split current-path "/")))
 (def repos (str "/repos/" current-dir))
+(def temp-dir "/tmp/")
 
 (def ttl (or (env "LINES_JOB_TTL") 3600))
 (def max-attempts (or (env "LINES_JOB_MAX_ATTEMPTS") 2))

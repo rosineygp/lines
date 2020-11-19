@@ -122,6 +122,7 @@
                  (do
                    (if (not (or (= module "shell")
                                 (= module "docker")
+                                (= module "template")
                                 (= module "scp"))) (load-once (str "src/modules/" module ".clj")))
                    (lines-job-retry (get item :retries) (str "lines-module-" module) item)))
         pipestatus (map (fn [l]
