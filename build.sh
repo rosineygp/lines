@@ -19,11 +19,11 @@ _code_block() {
 
   HEREDOC="$(sed -E 's/(\/|\.|-)/_/g;s/[a-z]/\U&/g' <<< ${f})"
 
-{  
-    echo -e "\nread -d \"\" __FLECK__REPCAPTURE_${HEREDOC} << __LINES_INLINE_${HEREDOC}";
-    grep -v "$filter_call" "${f}" | sed 's/\\/\\\\\\\\/g';
+{
+    echo -e "read -d \"\" __FLECK__REPCAPTURE_${HEREDOC} << __LINES_INLINE_${HEREDOC}";
+    grep -v "$filter_call" "${f}" | sed 's/\\/\\\\\\\\/g;/^([ ]+;|;)/d' ;
     echo -e "\n__LINES_INLINE_${HEREDOC}";
-    echo -e "\nREP \"(do \${__FLECK__REPCAPTURE_${HEREDOC}})\";";
+    echo -e "REP \"(do \${__FLECK__REPCAPTURE_${HEREDOC}})\";";
   } >> "${d}"
 }
 
@@ -54,7 +54,10 @@ _code_block "src/modules/pretty-print.clj" ".flk"
 _code_block "src/modules/docker.clj" ".flk"
 _code_block "src/modules/shell.clj" ".flk"
 _code_block "src/modules/template.clj" ".flk"
-_code_block "src/modules/scp.clj" ".flk" 
-_code_block "src/main.clj" ".flk" 
+_code_block "src/modules/scp.clj" ".flk"
+_code_block "src/main.clj" ".flk"
+
+sed -i --regexp-extended '/^([ ]+#|#)/d;/^$/d;s/[ \t]*$//' .flk
+sed -i '1 s/^/#\!\/usr\/bin\/env bash\n/' .flk
 
 mv .flk lines
