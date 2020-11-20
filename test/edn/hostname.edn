@@ -1,0 +1,6 @@
+[{:name "list"
+   :module "shell"
+   :label ["folder"]
+   :apply ["ls -la"]}
+  {:name "hostname"
+   :apply ["hostname"]}]

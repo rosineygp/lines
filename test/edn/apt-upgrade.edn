@@ -1,0 +1,8 @@
+[{:name "show hostname"
+  :apply ["hostname"]}
+ {:name "upgrade"
+  :groups ["apt" "upgrade"]
+  :args {:sudo true}
+  :apply ["apt-get update"
+          "apt-get upgrade -y"
+          "apt-get autoremove -y"]}]

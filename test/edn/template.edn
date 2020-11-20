@@ -1,0 +1,5 @@
+[{:name "template"
+  :module "template"
+  :vars {NAME "rosiney"
+         LASTNAME "pereira"}
+  :apply [{:src "test/template/hello-world.j2" :dest "/tmp/hello-world.txt"}]}]

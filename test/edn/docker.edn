@@ -1,0 +1,14 @@
+[{:name "docker test"
+  :module "docker"
+  :args {:image "ubuntu:20.04"}
+  :apply ["hostname"
+          "whoami"
+          "pwd"
+          "ls -la"]}
+  {:name "nginx"
+   :module "docker"
+   :args {:image "ubuntu"
+          :services [{:image "nginx" :alias "nginx"}]}
+   :apply ["apt-get update"
+           "apt-get install curl -y"
+           "curl http://nginx"]}]

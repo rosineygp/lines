@@ -1,0 +1,4 @@
+[
+  {:name "upload"
+  :module "scp"
+  :apply [{:src "/home/rosiney/Projects/lines/src" :dest "/tmp/folder" :recursive true}]}]
