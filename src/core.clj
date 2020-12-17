@@ -123,7 +123,10 @@
                    (if (not (or (= module "shell")
                                 (= module "docker")
                                 (= module "template")
-                                (= module "scp"))) (load-once (str "src/modules/" module ".clj")))
+                                (= module "scp"))) (let [f (str ".lines_sh_modules/" module "/module.clj")]
+                                                     (if (file-exists? f)
+                                                       (load-once f)
+                                                       (throw (str "module: " module " not found.")))))
                    (lines-job-retry (get item :retries) (str "lines-module-" module) item)))
         pipestatus (map (fn [l]
                           (map (fn [x] (get x :exit-code)) l)) result)
