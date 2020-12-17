@@ -23,8 +23,8 @@
     (is (= (str-slug "c l e a n") "c-l-e-a-n"))))
 
 (deftest "branch-or-tag-name"
-  (testing "local branch [dev]"
-    (is (= (branch-or-tag-name) "dev")))
+  (testing "local branch"
+    (is (= (branch-or-tag-name) (first (sh! "git rev-parse --abbrev-ref HEAD")))))
 
   (testing "github actions"
     (do
