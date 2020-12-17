@@ -19,12 +19,14 @@
 (def ttl (or (env "LINES_JOB_TTL") 3600))
 (def max-attempts (or (env "LINES_JOB_MAX_ATTEMPTS") 2))
 
-(let [o (or (get args :output) "default")
-      r (pipeline {:jobs (read-string (slurp (get args :pipeline)))
-                   :inventory (if (get args :inventory) (read-string (slurp (get args :inventory))))
-                   :filter-job (get args :filter-job)
-                   :filter-inventory (get args :filter-inventory)})]
-  (cond
-    (= o "minimal") (lines-pp-minimal r)
-    (= o "edn") (prn r)
-    (keyword? :else) (lines-pp r)))
+(cond
+  (get args :clojure) (load-file-without-hashbang (get args :clojure))
+  (get args :pipeline) (let [o (or (get args :output) "default")
+                             r (pipeline {:jobs (read-string (slurp (get args :pipeline)))
+                                          :inventory (if (get args :inventory) (read-string (slurp (get args :inventory))))
+                                          :filter-job (get args :filter-job)
+                                          :filter-inventory (get args :filter-inventory)})]
+                         (cond
+                           (= o "minimal") (lines-pp-minimal r)
+                           (= o "edn") (prn r)
+                           (keyword? :else) (lines-pp r))))
