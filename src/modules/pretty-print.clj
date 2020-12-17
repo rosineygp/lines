@@ -75,7 +75,7 @@
              (map (fn [l]
                     (println (lines-pp-script l))) (get i :result))
              (println (lines-pp-status (get i :status)))
-             (println (lines-pp-finished (get i :finished)))))) l))
+             (println (lines-pp-finished (get i :finished)))))) (if (sequential? l) l (list l))))
 
 (defn lines-pp-minimal [l]
   (map (fn [i]
@@ -84,4 +84,4 @@
            (println
             (blue ":job") (get i :name)
             (magenta ":target") (or (get-in i [:target :label]) (get-in i [:target :host]))
-            (green ":status") (get i :status)))) l))
+            (green ":status") (get i :status)))) (if (sequential? l) l (list l))))
