@@ -1,5 +1,5 @@
-(load-file-without-hashbang "src/main.clj")
-
-(def j {:apply ["echo welcome to lines"]})
+(def j {
+  :retries 2
+  :apply ["echo welcome to lines"]})
 
 (prn (job j))

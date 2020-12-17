@@ -5,9 +5,27 @@ if [ ! -f ./flk ]; then
   ./build.sh
 fi
 
-set -xe
+_test_folder () {
+  local o=""
+  local -r c="${1}"; shift
+  local -r p="${1}"; shift
+  [ "${1}" != "" ] && o="${1}"; shift
+
+  for f in "${p}"*; do
+    echo "${f}"
+    if [ "${o}" != "" ]; then
+      "${c}" "${o}" "${f}"
+    else
+      "${c}" "${f}"
+    fi
+  done
+}
 
 echo "unit test"
-./flk "${PWD}/test/unit/use-unit_test.clj"
-./flk "${PWD}/test/unit/colors-unit_test.clj"
-./flk "${PWD}/test/unit/core-unit_test.clj"
+_test_folder "./flk" "${PWD}/test/unit/" 
+
+echo "integration test"
+_test_folder "./lines" "${PWD}/test/integration/" "-c"
+
+echo "test edn"
+_test_folder "./lines" "${PWD}/test/edn/" "-p"

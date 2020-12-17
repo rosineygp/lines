@@ -1,5 +1,3 @@
-(load-file-without-hashbang "src/main.clj")
-
 (def j {:name "ssh"
         :target {:host "192.168.1.12"
                  :user "root"
