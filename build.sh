@@ -60,4 +60,7 @@ _code_block "src/main.clj" ".flk"
 sed -i --regexp-extended '/^([ ]+#|#)/d;/^$/d;s/[ \t]*$//' .flk
 sed -i '1 s/^/#\!\/usr\/bin\/env bash\n/' .flk
 
+# footer injection (spawn errors)
+echo  '[ "${r}" = "nil" ] && exit 0 || { echo "${r}"; exit 127; };' >> .flk
+
 mv .flk lines

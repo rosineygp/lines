@@ -30,3 +30,6 @@
                            (= o "minimal") (lines-pp-minimal r)
                            (= o "edn") (prn r)
                            (keyword? :else) (lines-pp r))))
+
+; flk end
+(quasiquote nil)
