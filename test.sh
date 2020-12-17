@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
 
+if [ ! -f ./flk ]; then
+  echo "building...."
+  ./build.sh
+fi
+
 set -xe
 
 echo "unit test"
