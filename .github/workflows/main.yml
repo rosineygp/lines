@@ -6,9 +6,21 @@ name: CI
 on: [push]
 
 jobs:
-  general_test:
+  test_unit:
     runs-on: ubuntu-18.04
     steps:
     - uses: actions/checkout@v1
-    - name: general test
-      run: ./test.sh
+    - name: test unit
+      run: ./test.sh unit
+  test_edn:
+    runs-on: ubuntu-18.04
+    steps:
+    - uses: actions/checkout@v1
+    - name: test edn
+      run: ./test.sh edn
+  test_integration:
+    runs-on: ubuntu-18.04
+    steps:
+    - uses: actions/checkout@v1
+    - name: test integration
+      run: ./test.sh integration
