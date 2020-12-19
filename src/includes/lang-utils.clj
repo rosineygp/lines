@@ -26,9 +26,6 @@
   (fn?
    (try* (call f) (catch* ex))))
 
-(defn key-exist? [m k]
-  (not (nil? (get m k))))
-
 (defn get-in [k v]
   (let [r (get k (first v))]
     (cond
