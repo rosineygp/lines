@@ -1,6 +1,0 @@
-[{:name "start container lines"
-  :apply ["lxc-start 114"]}
- {:name "upgrade"
-  :apply ["apt-get update"
-          "apt-get upgrade -y"
-          "apt-get autoremove -y"]}]
