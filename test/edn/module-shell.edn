@@ -23,5 +23,6 @@
           "exit 1"]}
  {:name "retry test"
   :retries 2
+  :ignore-error true
   :apply ["echo ok"
           "ping -c 1 8.8.8.$(shuf -i 7-8 -n 1)"]}]
