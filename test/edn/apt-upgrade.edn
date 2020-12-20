@@ -1,4 +1,4 @@
-[:name "upgrade"
+[{:name "upgrade"
   :groups ["apt" "upgrade"]
   :args {:sudo true}
   :apply ["apt-get update"
