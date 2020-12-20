@@ -1,0 +1,4 @@
+[{:name "pipe commands"
+  :groups ["pipe"]
+  :args {:sudo true}
+  :apply ["ps -ef | grep lines"]}]
