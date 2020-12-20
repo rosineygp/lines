@@ -2,7 +2,7 @@
 
 if [ ! -f ./flk ]; then
   echo "building...."
-  ./build.sh
+  ./build.sh > /dev/null 2>&1
 fi
 
 _test_folder () {
