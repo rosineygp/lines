@@ -11,14 +11,20 @@ _test_folder () {
   local -r p="${1}"; shift
   [ "${1}" != "" ] && o="${1}"
 
-  for f in "${p}"*; do
-    echo "${f}"
-    if [ "${o}" != "" ]; then
-      "${c}" "${o}" "${f}"
-    else
-      "${c}" "${f}"
-    fi
-  done
+  if [[ -x $(command -v "parallel") ]]; then
+    echo "running test in parallel"
+    find "${p}" | parallel -k "${c} ${o} {}"
+  else
+    echo "running test in sequencial, install gnu parallel for best performance"
+    for f in "${p}"*; do
+      echo "${f}"
+      if [ "${o}" != "" ]; then
+        "${c}" "${o}" "${f}"
+      else
+        "${c}" "${f}"
+      fi
+    done
+  fi
 }
 
 test="all"
@@ -30,7 +36,7 @@ fi
 if [ "${test}" == "all" ] || [ "${test}" == "unit" ];then
   set -e
   echo "unit test"
-  _test_folder "./flk" "${PWD}/test/unit/" 
+  _test_folder "./flk" "${PWD}/test/unit/"
 fi
 
 if [ "${test}" == "all" ] || [ "${test}" == "integration" ];then

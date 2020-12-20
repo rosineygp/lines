@@ -11,16 +11,22 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - name: test unit
-      run: ./test.sh unit
+      run: |
+        sudo apt-get install parallel -y
+        ./test.sh unit
   test_edn:
     runs-on: ubuntu-18.04
     steps:
     - uses: actions/checkout@v1
     - name: test edn
-      run: ./test.sh edn
+      run: |
+        sudo apt-get install parallel -y
+        ./test.sh edn
   test_integration:
     runs-on: ubuntu-18.04
     steps:
     - uses: actions/checkout@v1
     - name: test integration
-      run: ./test.sh integration
+      run: |
+        sudo apt-get install parallel -y
+        ./test.sh integration
