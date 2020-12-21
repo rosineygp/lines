@@ -21,7 +21,7 @@ _code_block() {
 
 {
     echo -e "read -d \"\" __FLECK__REPCAPTURE_${HEREDOC} << __LINES_INLINE_${HEREDOC}";
-    grep -v "$filter_call" "${f}" | sed 's/\\/\\\\\\\\/g;/^([ ]+;|;)/d' ;
+    grep -v "$filter_call" "${f}" | sed -e 's/\\/\\\\\\\\/g;/^;/d' ;
     echo -e "\n__LINES_INLINE_${HEREDOC}";
     echo -e "REP \"(do \${__FLECK__REPCAPTURE_${HEREDOC}})\";";
   } >> "${d}"
@@ -57,10 +57,10 @@ _code_block "src/modules/template.clj" ".flk"
 _code_block "src/modules/scp.clj" ".flk"
 _code_block "src/main.clj" ".flk"
 
-sed -i --regexp-extended '/^([ ]+#|#)/d;/^$/d;s/[ \t]*$//' .flk
+sed -i --regexp-extended '/^([ ]+#|#)/d;/^$/d;s/[ \t]*$//;s/^[ \t]*//;/^$/d' .flk
 sed -i '1 s/^/#\!\/usr\/bin\/env bash\n/' .flk
 
 # footer injection (spawn errors)
-echo  '[ "${r}" = "nil" ] && exit 0 || { echo "${r}"; exit 127; };' >> .flk
+echo -n '[ "${r}" = "nil" ] && exit 0 || { echo "${r}"; exit 127; };' >> .flk
 
 mv .flk lines
