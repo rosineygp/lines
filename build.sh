@@ -13,7 +13,7 @@ _command_exist() {
 }
 
 _code_block() {
-  local filter_call="load-file-without-hashbang"
+  local filter_call="^(load-file-without-hashbang"
   local f="${1}"
   local d="${2}"
 
