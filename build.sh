@@ -57,7 +57,7 @@ _code_block "src/modules/template.clj" ".flk"
 _code_block "src/modules/scp.clj" ".flk"
 _code_block "src/main.clj" ".flk"
 
-sed -i --regexp-extended '/^([ ]+#|#)/d;/^$/d;s/[ \t]*$//' .flk
+sed -i --regexp-extended '/^([ ]+#|#)/d;/^$/d;s/[ \t]*$//;s/^[ \t]*//' .flk
 sed -i '1 s/^/#\!\/usr\/bin\/env bash\n/' .flk
 
 # footer injection (spawn errors)
