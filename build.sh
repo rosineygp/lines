@@ -21,7 +21,7 @@ _code_block() {
 
 {
     echo -e "read -d \"\" __FLECK__REPCAPTURE_${HEREDOC} << __LINES_INLINE_${HEREDOC}";
-    grep -v "$filter_call" "${f}" | sed 's/\\/\\\\\\\\/g;/^([ ]+;|;)/d' ;
+    grep -v "$filter_call" "${f}" | sed 's/\\/\\\\\\\\/g;/^;/d' ;
     echo -e "\n__LINES_INLINE_${HEREDOC}";
     echo -e "REP \"(do \${__FLECK__REPCAPTURE_${HEREDOC}})\";";
   } >> "${d}"
