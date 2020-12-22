@@ -18,6 +18,7 @@
 
 (def ttl (or (env "LINES_JOB_TTL") 3600))
 (def max-attempts (or (env "LINES_JOB_MAX_ATTEMPTS") 2))
+(def modules-dir (or (env "LINES_MODULES_DIR") ".lines/modules/"))
 (def ext-dir (or (env "LINES_EXT_DIR") ".lines/ext/"))
 
 (if (dir-exists? ext-dir)
