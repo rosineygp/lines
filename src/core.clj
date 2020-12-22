@@ -123,7 +123,7 @@
                    (if (not (or (= module "shell")
                                 (= module "docker")
                                 (= module "template")
-                                (= module "scp"))) (let [f (str ".lines_sh_modules/" module "/module.clj")]
+                                (= module "scp"))) (let [f (str ".lines/modules/" module "/module.clj")]
                                                      (if (file-exists? f)
                                                        (load-once f)
                                                        (throw (str "module: " module " not found.")))))
