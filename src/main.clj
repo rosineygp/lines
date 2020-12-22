@@ -18,6 +18,11 @@
 
 (def ttl (or (env "LINES_JOB_TTL") 3600))
 (def max-attempts (or (env "LINES_JOB_MAX_ATTEMPTS") 2))
+(def ext-dir (or (env "LINES_EXT_DIR") ".lines/ext/"))
+
+(if (dir-exists? ext-dir)
+  (let [l  (filter (fn [i] (= (get i :type) "clj")) (list-dir ext-dir))]
+    (if (map? (first l)) (map (fn [i] (load-once (get i :object))) l))))
 
 (cond
   (get args :clojure) (load-file (get args :clojure))
