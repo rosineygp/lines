@@ -31,6 +31,47 @@
   (testing "not exists: /etc/not-exists"
     (is (= (file-exists? "/etc/not-exists") false))))
 
+(deftest "dir-exists"
+  (testing "exists: /etc/"
+    (is (= (dir-exists? "/etc/") true)))
+
+  (testing "not exists: /etcetera"
+    (is (= (dir-exists? "/etcetera/") false))))
+
+(def test-folder (str "/tmp/test-" (time-ms) "/"))
+(sh! (str "mkdir -p " test-folder "empty"))
+(sh! (str "touch " test-folder "raw-file"))
+(sh! (str "touch " test-folder "clojure.clj"))
+(sh! (str "touch " test-folder "shell-script.sh"))
+
+(deftest "list-dir"
+  (testing "folder not exist"
+    (is (= (list-dir "/etcetera/") false)))
+
+  (testing "empty folder"
+    (is (= (empty? (list-dir (str test-folder "empty"))) true)))
+
+  (testing "count objects"
+    (is (= (count (list-dir (str test-folder))) 4)))
+
+  (testing "check raw file"
+    (is (= (count (filter (fn [i] (= (get i :type) "file")) (list-dir (str test-folder)))) 1)))
+
+  (testing "check clojure file"
+    (is (= (count (filter (fn [i] (= (get i :type) "clj")) (list-dir (str test-folder)))) 1)))
+
+  (testing "check shell file"
+    (is (= (count (filter (fn [i] (= (get i :type) "sh")) (list-dir (str test-folder)))) 1)))
+
+  (testing "check directory"
+    (is (= (count (filter (fn [i] (= (get i :type) "directory")) (list-dir (str test-folder)))) 1)))
+
+  (testing "check missing object type"
+    (is (= (count (filter (fn [i] (= (get i :type) "js")) (list-dir (str test-folder)))) 0))))
+
+; clean folder
+(sh! (str "rm -r " test-folder))
+
 ; filter
 (def i (range 1 10))
 
