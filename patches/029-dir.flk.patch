@@ -1,0 +1,14 @@
+--- flk	2020-12-22 07:48:31.101786750 -0300
++++ flk_p	2020-12-22 07:48:26.753364018 -0300
+@@ -1867,10 +1867,8 @@
+ 
+                 _assoc! "${newmap}" "${__keyw}type" "${r}"
+                 r="${newmap}"
+-            else
+-                r="${__nil}"
++                _conj! "${newlist}" "${r}"
+             fi
+-            _conj! "${newlist}" "${r}"
+         done
+         r="${newlist}"
+     fi
