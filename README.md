@@ -60,31 +60,77 @@ status: true
 finished: ter 22 dez 2020 21:38:04 -03 ****************************************
 ```
 
-## Job
+## Job keywords
 
-Job data model description.
+A job is defined as a hzshmap of keywords that define the job’s behavior.
 
-```end
-{:name "lines"
- :module "shell"
- :target {}
- :vars {}
- :args {}
- :ignore-error false
- :retries 0
- :apply []}
+The common keywords available for jobs are:
+
+| keyword                       | value   | description                                                |
+|-------------------------------|---------|------------------------------------------------------------|
+| [apply](#apply)               | array   | the tasks that job will handler                            |
+| [name](#name)                 | string  | optional job name                                          |
+| [module](#module)             | string  | module name                                                |
+| [target](#target)             | hashmap | where the job will run                                     |
+| [vars](#vars)                 | hashmap | set env vars (branch name changes conforme current branch) |
+| [args](#args)                 | hashmap | arguments modules, each module has own args                |
+| [ignore-error](#ignore-error) | boolean | when job fail the execution continue                       |
+| [retries](#retries)           | integer | number of retries if job fail, max 2                       |
+
+### apply
+
+**apply** is an array of objects, the data passed will change with diferents modules.
+
+```edn
+{:module "shell"
+ :apply ["uname -a"
+         "make build"]}
 ```
 
-|keyword|value|default|description|
-|-------|-----|-------|-----------|
-|:name|string|`lines`|optional job name|
-|:module|string|`shell`|module name|
-|:target|hashmap|`{:label "local":method "local"}`|where the job will run|
-|:vars|hashmap|`{BRANCH_NAME "master" BRANCH_NAME_SLUG "master"}`|set env vars (branch name changes conforme current branch)|
-|:args|hashmap|`{}`|arguments modules, each module has own args|
-|:ignore-error|boolean|`false`|when job fail the execution continue|
-|:retries|integer|`0`|number of retries if job fail, max 2|
-|:apply|array|`[]`|the tasks that job will handler|
+> using **shell** module apply is a array of strings.
+
+```edn
+{:module "scp"
+ :apply [{:src "program.tar.gz" :dest "/tmp/program.tar.gz"}
+         {:src "script.sh"      :dest "/tmp/script.sh"}]}
+```
+
+> **scp** uses a list of hashmaps
+
+### name
+
+**name** is just a label for the job.
+
+```edn
+{:name "install curl"
+ :module "shell"
+ :apply ["apk add curl"]}
+```
+
+### module
+
+**module** is the method executed by job (default is **shell**)
+
+```edn
+{:apply ["whoami"]}
+```
+
+```edn
+ :module "docker"
+ :args {:image "node"}
+ :apply ["npm test"]}
+```
+
+the builtin modules are
+
+| module   | description                                                  |
+|----------|--------------------------------------------------------------|
+| shell    | execute shell commands                                       |
+| docker   | start a docker instance and execute shell commands inside it |
+| template | render **lines** template and copy to it to destiny          |
+| scp      | copy files over scp                                          |
+
+> is possible crate custom modules
 
 After job executed it return themself with result values
 
