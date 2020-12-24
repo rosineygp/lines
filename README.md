@@ -8,14 +8,12 @@ sed remove empty lines<p align="center">
 
 A pure bash clojureish CI pipeline.
 
-> ¹ only if using docker module
-
 Table of contents
 -----------------
 
 * [Usage](#usage)
   * [Installation](#installation)
-
+  * [Job keywords](#job-keywords)
 
 # Usage
 
@@ -23,12 +21,12 @@ Table of contents
 
 ### requirements
 
-- bash 4
-- docker¹
-- ssh²
-- scp²
+* bash 4
+* docker ¹
+* ssh ²
+* scp ²
 
-> ¹docker module, ²remote execution
+> ¹ docker module<br>² remote execution
 
 ### install script
 
@@ -62,9 +60,7 @@ finished: ter 22 dez 2020 21:38:04 -03 ****************************************
 
 ## Job keywords
 
-A job is defined as a hzshmap of keywords that define the job’s behavior.
-
-The common keywords available for jobs are:
+A job is defined as a hashmap of keywords. The commons keywords available for job are:
 
 | keyword                       | value   | description                                                |
 |-------------------------------|---------|------------------------------------------------------------|
@@ -79,15 +75,14 @@ The common keywords available for jobs are:
 
 ### apply
 
-**apply** is an array of objects, the data passed will change with diferents modules.
+Is the only required keyword that job needs. It's an array of objects that will be executed by a module. Each element of array is a tasks and the job can handler N tasks. If any tasks has a exit code different than 0, the job will stop and throw the error. **ignore-error** and **retries** helps to handler errors.
 
 ```edn
-{:module "shell"
- :apply ["uname -a"
+{:apply ["uname -a"
          "make build"]}
 ```
 
-> using **shell** module apply is a array of strings.
+> using default module **shell**, apply is a array of strings.
 
 ```edn
 {:module "scp"
@@ -112,16 +107,19 @@ The common keywords available for jobs are:
 **module** is the method executed by job (default is **shell**)
 
 ```edn
-{:apply ["whoami"]}
+{:module "shell"
+ :apply ["whoami"]}
 ```
 
+Docker module
+
 ```edn
- :module "docker"
+{:module "docker"
  :args {:image "node"}
  :apply ["npm test"]}
 ```
 
-the builtin modules are
+the builtin modules are:
 
 | module   | description                                                  |
 |----------|--------------------------------------------------------------|
@@ -130,9 +128,79 @@ the builtin modules are
 | template | render **lines** template and copy to it to destiny          |
 | scp      | copy files over scp                                          |
 
-> is possible crate custom modules
+> is possible create custom modules
+
+### target
+
+Host target is the location where the job will run. If any target passed the job will run at localhost.
+
+```edn
+{:target {:label "web-server" 
+          :host "web.local.net" 
+          :port 22 
+          :method "ssh"}}
+```
+| keywords | description                       |
+|----------|-----------------------------------|
+| label    | host label, just for identify     |
+| host     | ip or fqdn for access host        |
+| user     | login user                        |
+| port     | method port 22 is default         |
+| method   | connection method, ssh is default |
+
+> Is possible set another keywords for filter like **group**, **dc** or any other value you need to organizer targets.
 
 After job executed it return themself with result values
+
+### vars
+
+Variables will be inject in environment during tasks execution.
+
+```edn
+{:vars {MY_VAR_0 "lines"
+        MY_VAR_1 "go"}
+ :apply ["echo $MY_VAR_0"
+         "echo $MY_VAR_1"]}
+```
+
+> **BRANCH_NAME** and **BRANCH_NAME_SLUG** are inject in environment.
+
+### args
+
+Args is the parameters of modules.
+
+```edn
+{:name "install curl"
+ :args {:sudo true}
+ :apply ["apt-get update"
+         "apt-get install htop -y]}
+```
+
+> All tasks will run with **sudo**
+
+### ignore-error
+
+If some task fail, lines will not stop the pipeline, just return the current task failed.
+
+```edn
+{:ignore-error true
+ :apply ["whoami"
+         "exit 1"
+         "dpkg -l"]}
+```
+
+> The tasks after error will not be executed.
+
+### retries
+
+If some task fail, retry will run it again.
+
+```edn
+{:retries 2
+ :apply ["ping -c 1 my-host"]}
+```
+
+> The max retries are **2**, but it can be increase setting **LINES_JOB_MAX_ATTEMPTS** at enviroment vars.
 
 ```edn
 ({:attempts 1 
