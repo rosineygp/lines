@@ -26,6 +26,7 @@
     (if (map? (first l)) (map (fn [i] (load-once (get i :object))) l))))
 
 (cond
+  (get args :repl) (repl)
   (get args :clojure) (load-file (get args :clojure))
   (get args :pipeline) (let [o (or (get args :output) "default")
                              r (pipeline {:jobs (read-string (slurp (get args :pipeline)))

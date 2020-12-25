@@ -1,0 +1,23 @@
+--- flk	2020-12-25 11:33:06.087160882 -0300
++++ flk_new	2020-12-25 11:33:01.823122529 -0300
+@@ -1876,6 +1876,20 @@
+ 
+ _fref "list-dir" _list_dir
+ 
++_repl() {
++  if [[ -t 0 ]]; then
++    REP '(println (version))'
++    while true; do
++      READLINE "user> " || exit "$?"
++      [[ "${r}" ]] && REP "(do ${r})" && echo "${r}"
++    done
++  else
++    REP "(do `cat <&0` )"
++  fi
++}
++
++_fref "repl" _repl
++
+ REP "(def! load-file-without-hashbang (fn* (f) (eval (read-string (str \"(do \" (remove-hashbang (slurp f) ) \"\nnil)\")))))"
+ read -d "" __FLECK__REPCAPTURE << __FLECK__INLINEMALFILE
+ ;; aliases for common clojure names to mal builtins

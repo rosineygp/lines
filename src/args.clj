@@ -1,8 +1,7 @@
 (defn help []
-  (println "Usage: lines [OPTION]...
+  (println (str "Usage: lines [OPTION]...
 A pure bash clojureish CI pipeline.
-version: 0.0.0
-
+\x00
 Options:
 -i, --inventory           inventory file.
 -p, --pipeline            pipeline file.
@@ -13,13 +12,13 @@ Options:
 -o, --output              output method: [default, minimal, edn].
 \x00                          otherwise: default
 -c, --clojure             for clj file (pure clojure pipeline)
+-r, --repl                Lines console repl.
 -v, --version             show current version.
 \x00
 Otherwise:
-lookup for .lines.edn or .lines.clj"))
+lookup for .lines.edn or .lines.clj\n\n" (version))))
 
-(defn version []
-  (println "lines, version: 0.0.0"))
+(defn version [] "Lines, version: v1.0.0")
 
 (defn help-and-exit [exit-code]
   (do
@@ -49,9 +48,11 @@ lookup for .lines.edn or .lines.clj"))
       (= n 1) (cond
                 (or (= (first *ARGV*) "-h")
                     (= (first *ARGV*) "--help")) (help-and-exit 0)
+                (or (= (first *ARGV*) "-r")
+                    (= (first *ARGV*) "--repl")) (hash-map :repl true)
                 (or (= (first *ARGV*) "-v")
                     (= (first *ARGV*) "--version")) (do
-                                                      (version)
+                                                      (println (version))
                                                       (exit! 0))
                 (keyword? :else) (help-and-exit 1))           
       (odd? n) (do
