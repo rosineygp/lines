@@ -7,14 +7,14 @@ Options:
 -i, --inventory           inventory file.
 -p, --pipeline            pipeline file.
 -j, --filter-job          filter jobs by any keyword. 
-                          ex: 'name=job 1', 'groups=lint'.
+\x00                          ex: 'name=job 1', 'groups=lint'.
 -l, --filter-inventory    filter hosts by any keyword. 
-                          ex 'label=linux01', 'method=ssh'.
+\x00                          ex 'label=linux01', 'method=ssh'.
 -o, --output              output method: [default, minimal, edn].
-                          otherwise: default
+\x00                          otherwise: default
 -c, --clojure             for clj file (pure clojure pipeline)
 -v, --version             show current version.
-
+\x00
 Otherwise:
 lookup for .lines.edn or .lines.clj"))
 
