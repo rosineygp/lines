@@ -14,7 +14,7 @@
          (command? list)
          (map (fn* [cmd]
                    (quasiquote (defn ~cmd [args]
-                      (if (vector? args)
+                      (if (sequential? args)
                         (sh! (str ~cmd " " (apply str-join " " args)))
                         (sh! (str ~cmd)))))) list))))
                               
@@ -22,6 +22,6 @@
   (fn* [list]
        (map (fn [cmd]
               (quasiquote (defn ~cmd [args]
-                            (if (vector? args)
+                            (if (sequential? args)
                               (apply str-join " " ~cmd args)
                               (str ~cmd))))) list)))
