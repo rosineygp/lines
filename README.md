@@ -6,9 +6,9 @@
 
 # Lines
 
-A pure bash clojureish CI/CD and CM.
+A pure bash clojureish CI/CD and Configuration Management.
 
-> Inspired in gitlab-ci, github actions, ansible and salt.
+> Inspired by gitlab-ci, github actions, ansible and salt.
 
 Table of contents
 -----------------
@@ -35,8 +35,9 @@ Table of contents
 
 ```bash
 # download
-curl https://github.com/rosineygp/lines-sh/releases/download/v0.92.10/lines > lines
-chmod + x lines
+
+curl -L https://github.com/rosineygp/lines-sh/releases/latest/download/lines > lines
+chmod +x lines
 sudo mv lines /usr/bin/lines
 ```
 
@@ -225,6 +226,60 @@ Is it the default module, just spawn scripts to shell.
 | entrypoint | array   | change initial entry command (default is bash) |
 
 > ¹ needs pre configured sudoers (without password)
+
+### docker
+
+Create a docker instance and execute commands inside it as gitlab-ci.
+
+#### single instance
+
+```edn
+{:module "docker"
+ :apply ["whoami"]}
+```
+
+* start docker instance with default image (alpine)
+* run command **whoami** inside container
+
+#### multi instance
+
+```edn
+{:name "http nginx"
+ :module "docker"
+ :args {:image "ubuntu"
+        :services [{:image "nginx" 
+                    :alias "nginx"}]}
+ :apply ["apt-get update"
+         "apt-get install curl -y"
+         "curl http://nginx"]}
+```
+
+* start docker instance with nginx image as a **service** and set network alias as **nginx**
+* start another docker instance with ubuntu image
+* install ubuntu packages
+* execute curl at service from ubuntu instance
+
+**Arguments**
+
+| keyword    | type   | description                                  |
+|------------|--------|----------------------------------------------|
+| image      | string | docker instance path name                    |
+| entrypoint | array  | change initial entry command (default is sh) |
+| services   | array  |                                              |
+| artifacts  | hasmap |                                              |
+
+
+| keyword    | type    | description               |
+|------------|---------|---------------------------|
+| image      | string  | docker instance path name |
+| alias      | string  |                           |
+| vars       | hashmap |                           |
+| entrypoint | string  |                           |
+
+
+| keyword | type | description |
+|---------|------|-------------|
+| paths   |      |             |
 
 ```edn
 ({:attempts 1 
