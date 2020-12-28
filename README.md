@@ -1,6 +1,6 @@
-sed remove empty lines<p align="center">
+<p align="center">
   <a alt="mkdkr" href="https://rosineygp.github.io/mkdkr">
-    <img src="docs/assets/lines-transparent.png" width="246"/>
+    <img src="docs/assets/logo.png"/>
   </a>
 </p>
 
@@ -125,7 +125,7 @@ the builtin modules are:
 |----------|--------------------------------------------------------------|
 | shell    | execute shell commands                                       |
 | docker   | start a docker instance and execute shell commands inside it |
-| template | render **lines** template and copy to it to destiny          |
+| template | render **lines template** and copy to it to destiny          |
 | scp      | copy files over scp                                          |
 
 > is possible create custom modules
