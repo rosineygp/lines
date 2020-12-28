@@ -6,7 +6,9 @@
 
 # Lines
 
-A pure bash clojureish CI pipeline.
+A pure bash clojureish CI/CD and CM.
+
+> Inspired in gitlab-ci, github actions, ansible and salt.
 
 Table of contents
 -----------------
@@ -14,6 +16,7 @@ Table of contents
 * [Usage](#usage)
   * [Installation](#installation)
   * [Job keywords](#job-keywords)
+  * [Modules](#modules)
 
 # Usage
 
@@ -62,7 +65,7 @@ finished: ter 22 dez 2020 21:38:04 -03 ****************************************
 
 A job is defined as a hashmap of keywords. The commons keywords available for job are:
 
-| keyword                       | value   | description                                                |
+| keyword                       | type    | description                                                |
 |-------------------------------|---------|------------------------------------------------------------|
 | [apply](#apply)               | array   | the tasks that job will handler                            |
 | [name](#name)                 | string  | optional job name                                          |
@@ -200,7 +203,28 @@ If some task fail, retry will run it again.
  :apply ["ping -c 1 my-host"]}
 ```
 
-> The max retries are **2**, but it can be increase setting **LINES_JOB_MAX_ATTEMPTS** at enviroment vars.
+> The max retries are **2**, but it can be increase setting **LINES_JOB_MAX_ATTEMPTS** at environment vars.
+
+## Modules
+
+### shell
+
+Is it the default module, just spawn scripts to shell.
+
+```edn
+{:module "shell"
+ :apply ["date"]}
+```
+
+**Arguments**
+
+| keyword    | type    | description                                    |
+|------------|---------|------------------------------------------------|
+| sudo¹      | boolean | apply commands using sudo                      |
+| user¹      | string  | change current user                            |
+| entrypoint | array   | change initial entry command (default is bash) |
+
+> ¹ needs pre configured sudoers (without password)
 
 ```edn
 ({:attempts 1 
