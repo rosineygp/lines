@@ -27,6 +27,31 @@ _code_block() {
   } >> "${d}"
 }
 
+_branch_or_tag_name() {
+  local branch="unknown"
+  if [[ "$GITHUB_ACTIONS" == "true" ]]; then
+    branch=$(echo "${GITHUB_REF}" | cut -d'/' -f3-)
+    echo -ne "${branch}"
+  elif [[ "${GITLAB_CI}" == "true" ]]; then
+    echo -ne "${CI_COMMIT_REF_NAME}"
+  elif [[ "${JENKINS_URL}" != "" ]]; then
+    echo -ne "${GIT_BRANCH}"
+  elif [[ "${TRAVIS}" == "true" ]]; then
+    echo -ne "${TRAVIS_BRANCH}"
+  elif [[ "${CIRCLECI}" == "true" ]]; then
+    if [[ "${CIRCLE_TAG}" != "" ]]; then
+      echo -ne "${CIRCLE_TAG}"
+    else
+      echo -ne "${CIRCLE_BRANCH}"
+    fi
+  elif [[ $(git rev-parse --is-inside-work-tree) == true ]]; then
+    branch=$(git rev-parse --abbrev-ref HEAD)
+    echo -ne "${branch}"
+  else
+    echo -ne "${branch}"
+  fi
+}
+
 _command_exist "patch"
 _command_exist "curl"
 _command_exist "sed"
@@ -59,6 +84,10 @@ _code_block "src/main.clj" ".flk"
 
 sed -i --regexp-extended '/^([ ]+#|#)/d;/^$/d;s/[ \t]*$//;s/^[ \t]*//;/^$/d' .flk
 sed -i '1 s/^/#\!\/usr\/bin\/env bash\n/' .flk
+
+#set version
+_version=$(_branch_or_tag_name)
+sed -i "s/__LINES_REPLACE_VERSION/$_version/g" .flk
 
 # footer injection (spawn errors)
 echo -n '[ "${r}" = "nil" ] && exit 0 || { echo "${r}"; exit 127; };' >> .flk

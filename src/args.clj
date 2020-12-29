@@ -18,7 +18,7 @@ Options:
 Otherwise:
 lookup for .lines.edn or .lines.clj\n\n" (version))))
 
-(defn version [] "Lines, version: v1.0.0")
+(defn version [] "Lines, version: __LINES_REPLACE_VERSION")
 
 (defn help-and-exit [exit-code]
   (do
