@@ -1,14 +1,27 @@
-[{:name "docker test"
+[{:name "simple"
   :module "docker"
   :args {:image "ubuntu:20.04"}
   :apply ["hostname"
           "whoami"
-          "pwd"
-          "ls -la"]}
-  {:name "nginx"
-   :module "docker"
-   :args {:image "ubuntu"
-          :services [{:image "nginx" :alias "nginx"}]}
-   :apply ["apt-get update"
-           "apt-get install curl -y"
-           "curl http://nginx"]}]
+          "pwd"]}
+ {:name "service"
+  :module "docker"
+  :args {:image "ubuntu"
+         :services [{:image "nginx"
+                     :alias "nginxsrv"}]}
+  :apply ["apt-get update"
+          "apt-get install curl -y"
+          "curl http://nginxsrv"]}
+ {:name "privileged"
+  :module "docker"
+  :args {:image "docker:19"
+         :privileged true}
+  :apply ["docker image ls"]}
+ {:name "artifacts"
+  :module "docker"
+  :args {:artifacts {:paths ["file.tar.gz"
+                             "file1.tar.gz"
+                             "dist"]}}
+  :apply ["touch file.tar.gz file1.tar.gz"
+          "mkdir dist"
+          "touch dist/1.tar.gz"]}]
