@@ -47,11 +47,11 @@
                                (get service :alias)
                                (str-slug (get service :image)))
            "--env" (str "'BRANCH_NAME=" (branch-or-tag-name) "'")
-           (if (get service :variables)
+           (if (get service :vars)
              (apply str-join " " (map
                                   (fn [key]
-                                    (str "--env '" key "=" (get (get service :variables) key) "'"))
-                                  (keys (get service :variables)))) "")
+                                    (str "--env '" key "=" (get (get service :vars) key) "'"))
+                                  (keys (get service :vars)))) "")
            (if (get service :entrypoint)
              (str "--entrypoint " (get service :entrypoint)) "")
            (get service :image)]))
