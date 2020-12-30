@@ -27,17 +27,20 @@ A pure bash clojureish CI pipeline.
 Table of contents
 -----------------
 
-* [Usage](#usage)
-  * [Installation](#installation)
-  * [Job keywords](#job-keywords)
-  * [Modules](#modules)
-    * [shell](###shell)
-    * [docker](###docker)
-    * [scp](###scp)
-    * [template](###template)
-    * [user module](###user-module)
-
-# Usage
+* [Installation](#installation)
+* [Job keywords](#job-keywords)
+* [Modules](#modules)
+  * [shell](#shell)
+  * [docker](#docker)
+  * [scp](#scp)
+  * [template](#template)
+  * [user module](#user-module)
+* [EDN Pipeline](#edn-pipeline)
+  * [Targets file](#targets-file)
+  * [Filters](#filters)
+* [Clojure Pipeline](#clojure-pipeline)
+  * [Functions](#functions)
+* [Extensions](#extension)
 
 ## Installation
 
@@ -387,8 +390,8 @@ Using user module.
 
 ```edn
 {:module "git"
- :apply [{:repos "git@github.com:rosineygp/lines-sh.git" :dest "lines"}
-         {:repos "git@github.com:rosineygp/mkdkraa.git"  :dest "mkdkr"}]}
+ :apply [{:repos "git@github.com:rosineygp/lines.git"   :dest "lines"}
+         {:repos "git@github.com:rosineygp/mkdkraa.git" :dest "mkdkr"}]}
 ```
 
 ```edn
