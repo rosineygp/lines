@@ -27,17 +27,20 @@ A pure bash clojureish CI pipeline.
 Table of contents
 -----------------
 
-* [Usage](#usage)
-  * [Installation](#installation)
-  * [Job keywords](#job-keywords)
-  * [Modules](#modules)
-    * [shell](#shell)
-    * [docker](#docker)
-    * [scp](#scp)
-    * [template](#template)
-    * [user module](#user-module)
-
-# Usage
+* [Installation](#installation)
+* [Job keywords](#job-keywords)
+* [Modules](#modules)
+  * [shell](#shell)
+  * [docker](#docker)
+  * [scp](#scp)
+  * [template](#template)
+  * [user module](#user-module)
+* [EDN Pipeline](#edn-pipeline)
+  * [Targets file](#targets-file)
+  * [Filters](#filters)
+* [Clojure Pipeline](#clojure-pipeline)
+  * [Functions](#functions)
+* [Extensions](#extension)
 
 ## Installation
 
