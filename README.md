@@ -31,11 +31,11 @@ Table of contents
   * [Installation](#installation)
   * [Job keywords](#job-keywords)
   * [Modules](#modules)
-    * [shell](###shell)
-    * [docker](###docker)
-    * [scp](###scp)
-    * [template](###template)
-    * [user module](###user-module)
+    * [shell](#shell)
+    * [docker](#docker)
+    * [scp](#scp)
+    * [template](#template)
+    * [user module](#user-module)
 
 # Usage
 
@@ -387,8 +387,8 @@ Using user module.
 
 ```edn
 {:module "git"
- :apply [{:repos "git@github.com:rosineygp/lines-sh.git" :dest "lines"}
-         {:repos "git@github.com:rosineygp/mkdkraa.git"  :dest "mkdkr"}]}
+ :apply [{:repos "git@github.com:rosineygp/lines.git"   :dest "lines"}
+         {:repos "git@github.com:rosineygp/mkdkraa.git" :dest "mkdkr"}]}
 ```
 
 ```edn
