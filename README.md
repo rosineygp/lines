@@ -6,9 +6,23 @@
 
 # Lines
 
-A pure bash clojureish CI/CD and Configuration Management.
+A pure bash clojureish CI pipeline.
 
-> Inspired by gitlab-ci, github actions, ansible and salt.
+# Main Features
+
+* Complete CI engine without big deps 
+* Testing locally without pushes or over remotely over ssh (Ansible like)
+* Pure data syntax `edn`
+* Clojure script syntax
+* Easy command line integration like (docker, kubectl, apt)
+* Concurrency execution
+* Modular and extensible
+
+# Why?
+
+* Alternative method to install clojure, using "clojure", but without clojure
+* Tired to write `yaml` every day
+* Create something cool with base language [Fleck](https://github.com/chr15m/flk)
 
 Table of contents
 -----------------
@@ -139,9 +153,9 @@ the builtin modules are:
 Host target is the location where the job will run. If any target passed the job will run at localhost.
 
 ```edn
-{:target {:label "web-server" 
-          :host "web.local.net" 
-          :port 22 
+{:target {:label "web-server"
+          :host "web.local.net"
+          :port 22
           :method "ssh"}}
 ```
 | keywords | description                       |
@@ -217,7 +231,7 @@ Is it the default module, just spawn scripts to shell.
  :apply ["date"]}
 ```
 
-**Arguments**
+#### arguments
 
 | keyword    | type    | description                                    |
 |------------|---------|------------------------------------------------|
@@ -241,13 +255,13 @@ Create a docker instance and execute commands inside it as gitlab-ci.
 * start docker instance with default image (alpine)
 * run command **whoami** inside container
 
-#### multi instance
+#### multi instance (service)
 
 ```edn
 {:name "http nginx"
  :module "docker"
  :args {:image "ubuntu"
-        :services [{:image "nginx" 
+        :services [{:image "nginx"
                     :alias "nginx"}]}
  :apply ["apt-get update"
          "apt-get install curl -y"
@@ -259,47 +273,68 @@ Create a docker instance and execute commands inside it as gitlab-ci.
 * install ubuntu packages
 * execute curl at service from ubuntu instance
 
-**Arguments**
+### download artifacts
 
-| keyword    | type   | description                                  |
-|------------|--------|----------------------------------------------|
-| image      | string | docker instance path name                    |
-| entrypoint | array  | change initial entry command (default is sh) |
-| services   | array  |                                              |
-| artifacts  | hasmap |                                              |
-
-
-| keyword    | type    | description               |
-|------------|---------|---------------------------|
-| image      | string  | docker instance path name |
-| alias      | string  |                           |
-| vars       | hashmap |                           |
-| entrypoint | string  |                           |
-
-
-| keyword | type | description |
-|---------|------|-------------|
-| paths   |      |             |
+Download files or directory from a docker instance.
 
 ```edn
-({:attempts 1 
-  :args {} 
-  :module "shell" 
-  :status true 
-  :apply ["echo hello world!"] 
-  :name "lines" 
-  :retries 0 
-  :target {:label "local" :method "local"} 
-  :pipestatus ((0)) 
-  :finished 1608684590507 
-  :vars {"BRANCH_NAME_SLUG" "master" "BRANCH_NAME" "master"} 
-  :ignore-error false 
+{:name "artifacts"
+  :module "docker"
+  :args {:artifacts {:paths ["file"
+                             "directory"]}}
+  :apply ["touch file"
+          "mkdir directory"
+          "touch directory/file"]}
+```
+
+#### arguments
+
+| keyword                             | type    | description                                            |
+|-------------------------------------|---------|--------------------------------------------------------|
+| image                               | string  | docker instance path name                              |
+| entrypoint                          | array   | change initial entry command (default is sh)           |
+| privileged                          | boolean | run job with privileged access and mount docker socket |
+| [services](#services-description)   | array   | services description                                   |
+| [artifacts](#artifacts-description) | hasmap  | download artifact from docker instance                 |
+
+#### services description
+
+Services is an array of hashmaps, is possible up N services with docker module, the following keywords can be used to build a service.
+
+| keyword    | type    | description                                       |
+|------------|---------|---------------------------------------------------|
+| image      | string  | docker instance path name                         |
+| vars       | hashmap | like job vars but exclusive from instance service |
+| alias      | string  | network alias name, otherwise slug image name     |
+| entrypoint | string  | service entrypoint string, otherwise ''           |
+
+#### artifacts description
+
+Download a files or directories from a docker instance.
+
+| keyword | type  | description                          |
+|---------|-------|--------------------------------------|
+| paths   | array | file or folder relative or full path |
+
+```edn
+({:attempts 1
+  :args {}
+  :module "shell"
+  :status true
+  :apply ["echo hello world!"]
+  :name "lines"
+  :retries 0
+  :target {:label "local" :method "local"}
+  :pipestatus ((0))
+  :finished 1608684590507
+  :vars {"BRANCH_NAME_SLUG" "master" "BRANCH_NAME" "master"}
+  :ignore-error false
   :start 1608684587657
-  :result (({:exit-code 0 
-             :finished 1608684590253 
-             :cmd "echo hello world!" 
-             :stdout "hello world!" 
-             :stderr "" 
-             :start 1608684590233 
+  :result (({:exit-code 0
+             :finished 1608684590253
+             :cmd "echo hello world!"
+             :stdout "hello world!"
+             :stderr ""
+             :start 1608684590233
              :debug "  bash -c $' export BRANCH_NAME_SLUG=\"master\" BRANCH_NAME=\"master\" ; echo hello world! ' "}))})
 ```
