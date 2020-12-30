@@ -10,8 +10,8 @@ A pure bash clojureish CI pipeline.
 
 # Main Features
 
-* Complete CI engine without big deps 
-* Testing locally without pushes or over remotely over ssh (Ansible like)
+* Complete CI engine
+* Execute local or remote
 * Pure data syntax `edn`
 * Clojure script syntax
 * Easy command line integration like (docker, kubectl, apt)
@@ -31,6 +31,11 @@ Table of contents
   * [Installation](#installation)
   * [Job keywords](#job-keywords)
   * [Modules](#modules)
+    * [shell](###shell)
+    * [docker](###docker)
+    * [scp](###scp)
+    * [template](###template)
+    * [user module](###user-module)
 
 # Usage
 
@@ -150,7 +155,7 @@ the builtin modules are:
 
 ### target
 
-Host target is the location where the job will run. If any target passed the job will run at localhost.
+Host **target** is the location where the job will run. If any target passed the job will run at localhost.
 
 ```edn
 {:target {:label "web-server"
@@ -158,6 +163,8 @@ Host target is the location where the job will run. If any target passed the job
           :port 22
           :method "ssh"}}
 ```
+> Targets can be defined in separated file, during execution is possible to merge data with job and execute the same job in n hosts.
+
 | keywords | description                       |
 |----------|-----------------------------------|
 | label    | host label, just for identify     |
@@ -243,7 +250,7 @@ Is it the default module, just spawn scripts to shell.
 
 ### docker
 
-Create a docker instance and execute commands inside it as gitlab-ci.
+Create a docker instance and execute commands inside it.
 
 #### single instance
 
@@ -255,7 +262,7 @@ Create a docker instance and execute commands inside it as gitlab-ci.
 * start docker instance with default image (alpine)
 * run command **whoami** inside container
 
-#### multi instance (service)
+#### services
 
 ```edn
 {:name "http nginx"
@@ -315,6 +322,74 @@ Download a files or directories from a docker instance.
 | keyword | type  | description                          |
 |---------|-------|--------------------------------------|
 | paths   | array | file or folder relative or full path |
+
+### scp
+
+Copy files and folders to remote host over **scp**.
+
+```edn
+{:module "scp"
+ :apply [{:src "./dist/command.bin"
+          :dest "/usb/bin/command"}]}
+```
+
+#### apply arguments
+
+| keyword   | type    | description                     |
+|-----------|---------|---------------------------------|
+| src       | string  | file or directory source        |
+| dest      | string  | file or directory destiny       |
+| recursive | boolean | set **true** for directory copy |
+
+### template
+
+Simple template file that only replace values inside double brackets `{{ varname }}`.
+
+```jinja
+Hello {{ NAME }}!
+```
+
+> template file
+
+```
+[{:module "template"
+  :vars {NAME "lines"}
+  :apply [{:src "./hello-world.j2"
+           :dest "/tmp/hello-world.txt"}]}]
+```
+
+### user module
+
+Lines provides interface with custom user module.
+
+Just put additional clojure scripts at `.lines/modules/<module_name>/module.clj`, like following example.
+
+```clj
+; .lines/modules/git/module.clj
+
+; create a boilerplate function for git command
+(str-use ["git"])
+
+; custom user function, params: job (receive job definition), i (apply index)
+; the function to return a string eg. `git clone -v git@github.com:rosineygp/mkdkr.git mkdkr`
+(defn str-git-command-line [job i]
+  (git ["clone"
+        "-v"
+        (get i :repos)
+        (get i :dest)]))
+
+; lines will call this function `lines-module-<module_name>`
+(defn lines-module-git [job]
+  (lines-task-loop job str-git-command-line)) ; loop handler
+```
+
+Using user module.
+
+```edn
+{:module "git"
+ :apply [{:repos "git@github.com:rosineygp/lines-sh.git" :dest "lines"}
+         {:repos "git@github.com:rosineygp/mkdkraa.git"  :dest "mkdkr"}]}
+```
 
 ```edn
 ({:attempts 1
