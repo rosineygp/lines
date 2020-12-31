@@ -12,8 +12,8 @@ jobs:
     - uses: actions/checkout@v1
     - name: test unit
       run: |
-        sudo apt-get install parallel -qqy
-        ./test.sh unit
+        ./build.sh
+        ./lines -c .lines.cjl -a test=unit
   test_edn:
     runs-on: ubuntu-18.04
     steps:
@@ -21,13 +21,13 @@ jobs:
     - name: test edn
       continue-on-error: true
       run: |
-        sudo apt-get install parallel -qqy
-        ./test.sh edn || true
+        ./build.sh
+        ./lines -c .lines.cjl -a edn
   test_integration:
     runs-on: ubuntu-18.04
     steps:
     - uses: actions/checkout@v1
     - name: test integration
       run: |
-        sudo apt-get install parallel -qqy
-        ./test.sh integration
+        ./build.sh
+        ./lines -c .lines.cjl -a test=integration
