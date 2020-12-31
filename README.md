@@ -37,7 +37,6 @@ Table of contents
   * [user module](#user-module)
 * [EDN Pipeline](#edn-pipeline)
   * [Targets file](#targets-file)
-  * [Filters](#filters)
 * [Clojure Pipeline](#clojure-pipeline)
   * [Functions](#functions)
 * [Extensions](#extension)
@@ -198,8 +197,7 @@ Variables will be inject in environment during tasks execution.
 Args is the parameters of modules.
 
 ```edn
-{:name "install curl"
- :args {:sudo true}
+{:args {:sudo true}
  :apply ["apt-get update"
          "apt-get install htop -y]}
 ```
@@ -268,8 +266,7 @@ Create a docker instance and execute commands inside it.
 #### services
 
 ```edn
-{:name "http nginx"
- :module "docker"
+{:module "docker"
  :args {:image "ubuntu"
         :services [{:image "nginx"
                     :alias "nginx"}]}
@@ -288,13 +285,12 @@ Create a docker instance and execute commands inside it.
 Download files or directory from a docker instance.
 
 ```edn
-{:name "artifacts"
-  :module "docker"
-  :args {:artifacts {:paths ["file"
-                             "directory"]}}
-  :apply ["touch file"
-          "mkdir directory"
-          "touch directory/file"]}
+{:module "docker"
+ :args {:artifacts {:paths ["file"
+                            "directory"]}}
+ :apply ["touch file"
+         "mkdir directory"
+         "touch directory/file"]}
 ```
 
 #### arguments
@@ -354,11 +350,11 @@ Hello {{ NAME }}!
 
 > template file
 
-```
-[{:module "template"
-  :vars {NAME "lines"}
-  :apply [{:src "./hello-world.j2"
-           :dest "/tmp/hello-world.txt"}]}]
+```edn
+{:module "template"
+ :vars {NAME "lines"}
+ :apply [{:src "./hello-world.j2"
+          :dest "/tmp/hello-world.txt"}]}
 ```
 
 ### user module
@@ -390,9 +386,62 @@ Using user module.
 
 ```edn
 {:module "git"
- :apply [{:repos "git@github.com:rosineygp/lines.git"   :dest "lines"}
-         {:repos "git@github.com:rosineygp/mkdkraa.git" :dest "mkdkr"}]}
+ :apply [{:repos "git@github.com:rosineygp/lines.git" :dest "lines"}
+         {:repos "git@github.com:rosineygp/mkdkr.git" :dest "mkdkr"}]}
 ```
+
+## EDN Pipeline
+
+Pipelines is an array of jobs, and can be described using only edn.
+
+```edn
+; file: node.edn
+
+[{:name "build"
+  :apply ["npm install"]}
+ [{:name "unit test"
+   :group ["test"]
+   :apply ["npm unit"]}
+  {:name "mocha test"
+   :group ["test"]
+   :apply ["npm mocha"]}]
+ {:name "deploy"
+  :apply ["npm deploy"]}]
+```
+
+Jobs inside pipeline can be executed in parallel, just group then with `[ array ]`, is possible use custom keywords for better notation like `:groups`.
+
+```shell
+# execute all jobs
+lines -p node.edn
+
+# filter only tests
+lines -p node.edn -j group=test
+```
+
+### Targets file
+
+Is possible describe hosts targets using `edn` files, like pipeline.
+
+```edn
+; file: hosts.edn
+
+[{:label "vm-0" :host "192.168.1.4" :method "ssh" :user "ubuntu"}
+ {:label "vm-1" :host "192.168.1.5" :method "ssh" :user "ubuntu"}]
+```
+
+> ssh only works with `authorized_keys` pre-configured, command `ssh-copy-id` can help configure it.
+
+```shell
+# execute pipeline in all hosts
+lines -p node.edn -i hosts.edn
+
+# filter only wm-0 host
+lines -p node.edn -i hosts.edn -l label=wm-0
+
+# filter jobs deploy and host wm-1
+lines -p node.edn -i hosts.edn -l label=wm-1 -j name=deploy
+``` 
 
 ```edn
 ({:attempts 1
