@@ -22,7 +22,7 @@ A pure bash clojureish CI pipeline.
 
 * Alternative method to install clojure, using "clojure", but without clojure
 * Tired to write `yaml` every day
-* Create something cool with base language [Fleck](https://github.com/chr15m/flk)
+* Create something cool with [Fleck](https://github.com/chr15m/flk)
 
 Table of contents
 -----------------
@@ -38,8 +38,10 @@ Table of contents
 * [EDN Pipeline](#edn-pipeline)
   * [Targets file](#targets-file)
 * [Clojure Pipeline](#clojure-pipeline)
-  * [Functions](#functions)
-* [Extensions](#extension)
+  * [Lines functions](#lines-functions)
+  * [Environment vars](#enviroment-vars)
+* [Extensions](#extensions)
+* [Development](#development)
 
 ## Installation
 
@@ -441,7 +443,57 @@ lines -p node.edn -i hosts.edn -l label=wm-0
 
 # filter jobs deploy and host wm-1
 lines -p node.edn -i hosts.edn -l label=wm-1 -j name=deploy
-``` 
+```
+
+> EDN files are not safe is possible call functions dynamically.
+
+```edn
+; unsafe pipeline, extensions are based on this behavior
+
+[{:apply [(str "echo " (time-ms))]}]
+```
+
+## Clojure Pipeline
+
+Powerful and dynamic pipelines with complex scenarios.
+
+```clojure
+; generate single job for each yml found and test with docker image yamllint
+
+(lines-pp (parallel
+    (map (fn [x] (assoc {}
+                        :name (get x :object)
+                        :module "docker"
+                        :args {:image "my/yamllint"}
+                        :apply [(str "yamllint " (get x :object))]))
+            (filter (fn [i] (= "yml" (get i :type))) (list-dir "src/")))))
+```
+
+> This project use this case to test itself at `.lines.clj`.
+
+### Lines functions
+
+The following functions will help to build lines clojure scripts.
+
+| name              | description                                              |
+|-------------------|----------------------------------------------------------|
+| job               | execute edn job                                          |
+| parallel          | execute jobs in parallel                                 |
+| str-use           | mapping command line to function, return str not execute |
+| use               | mapping command line to function, run immediately        |
+| pipeline          | execute end pipeline                                     |
+| lines-pp          | beautiful print pipeline                                 |
+| lines-pp-minimal  | beautiful print pipeline (single line)                   |
+| merge-job-targets | generate a mixed list with edn pipelines and targets     |
+| isremote?         | check if target will run local or in remote machine      |
+
+`src/core.clj` and `src/includes/lang-utils.clj` has more useful functions.
+
+Additional functions included in Lines.
+
+filter | pmap | println_stderr | exit! | trap! | unset | str-join | str-subs | range | str-ident | mod | file-exists | file-write | unlink | or | and | hashmap-list | merge | key-name | call | callable? | get-in | even? | odd? | load-once | spit
+
+The result of function `job` is the following data:
 
 ```edn
 ({:attempts 1
@@ -464,4 +516,69 @@ lines -p node.edn -i hosts.edn -l label=wm-1 -j name=deploy
              :stderr ""
              :start 1608684590233
              :debug "  bash -c $' export BRANCH_NAME_SLUG=\"master\" BRANCH_NAME=\"master\" ; echo hello world! ' "}))})
+```
+
+### Environment vars
+
+Lines variables definition.
+
+| name                   | default           | description                                      |
+|------------------------|-------------------|--------------------------------------------------|
+| LINES_JOB_TTL          | 3600              | max time that a job can run (only docker module) |
+| LINES_JOB_MAX_ATTEMPTS | 2                 | max number of retries                            |
+| LINES_MODULES_DIR      | ".lines/modules/" | modules default location                         |
+| LINES_EXT_DIR          | ".lines/ext/"     | extensions default location                      |
+| FLK_MAX_THREADS        | undefined         | max number of threads in parallel execution      |
+
+## Extensions
+
+Is possible create functions and extend usability, all extensions must be keep at `.lines/ext/`, it is just a clojure script with useful functions.
+
+```edn
+; file: .lines/ext/apt-helper.clj
+
+(str-use ["apt-get"])
+
+(defn apt-update []
+  (apt-get ["update"]))
+
+(defn apt-args [options packages]
+   (apt-get  (concat options packages)))
+
+(defn apt-install [packages]
+  (apt-args ["install" "-y"] packages))
+
+(defn apt-remove [packages]
+  (apt-args ["remove" "-y"] packages))
+```
+
+Now edn files or pipeline can call those functions.
+
+```edn
+; edn pipeline
+
+[{:name "apt with extensions"
+  :apply [(apt-update)
+          (apt-install ["python"
+                        "mysql-server"
+                        "memcached"])]}]
+```
+
+## Development
+
+Build this project
+
+```shell
+./build.sh
+
+> result
+  flk lines
+```
+
+`flk` is same of [Fleck](https://github.com/chr15m/flk) with `patches/` applied and `lines` is flk with all `src/` included.
+
+Testing changes in `src/` without build.
+
+```shell
+./flk src/main.clj <params>
 ```
