@@ -60,6 +60,9 @@
   (let [s (str-split s "=")]
     (hash-map (keyword (nth s 0)) (nth s 1))))
 
+(defn str-split-keys-values [s c]
+  (reduce merge {} (map str-split-key-val (str-split s c))))
+
 (defn spit [f content & options]
   (if (empty? options)
     (file-write f content)

@@ -12,6 +12,9 @@ Options:
 -o, --output              output method: [default, minimal, edn].
 \x00                          otherwise: default
 -c, --clojure             for clj file (pure clojure pipeline)
+-a, --arguments           passthrough arguments for clojure scripts as string
+\x00                          parser: (str-split-keys-values \"foo=bar k=v\" \" \") into {:foo \"bar\" :k \"v\"}
+\x00                          code: (str-split-keys-values (get args :arguments) \" \")
 -r, --repl                Lines console repl.
 -v, --version             show current version.
 \x00
@@ -33,6 +36,7 @@ lookup for .lines.edn or .lines.clj\n\n" (version))))
     (or (= o "-j") (= o "--filter-job")) (keyword "filter-job")
     (or (= o "-l") (= o "--filter-inventory")) (keyword "filter-inventory")
     (or (= o "-o") (= o "--output")) (keyword "output")
+    (or (= o "-a") (= o "--arguments")) (keyword "arguments")
     (keyword? :else) (do
                        (println (str "Parameter not found: " o))
                        (help)
