@@ -198,8 +198,7 @@ Variables will be inject in environment during tasks execution.
 Args is the parameters of modules.
 
 ```edn
-{:name "install curl"
- :args {:sudo true}
+{:args {:sudo true}
  :apply ["apt-get update"
          "apt-get install htop -y]}
 ```
@@ -268,8 +267,7 @@ Create a docker instance and execute commands inside it.
 #### services
 
 ```edn
-{:name "http nginx"
- :module "docker"
+{:module "docker"
  :args {:image "ubuntu"
         :services [{:image "nginx"
                     :alias "nginx"}]}
@@ -288,13 +286,12 @@ Create a docker instance and execute commands inside it.
 Download files or directory from a docker instance.
 
 ```edn
-{:name "artifacts"
-  :module "docker"
-  :args {:artifacts {:paths ["file"
-                             "directory"]}}
-  :apply ["touch file"
-          "mkdir directory"
-          "touch directory/file"]}
+{:module "docker"
+ :args {:artifacts {:paths ["file"
+                            "directory"]}}
+ :apply ["touch file"
+         "mkdir directory"
+         "touch directory/file"]}
 ```
 
 #### arguments
@@ -354,11 +351,11 @@ Hello {{ NAME }}!
 
 > template file
 
-```
-[{:module "template"
-  :vars {NAME "lines"}
-  :apply [{:src "./hello-world.j2"
-           :dest "/tmp/hello-world.txt"}]}]
+```edn
+{:module "template"
+ :vars {NAME "lines"}
+ :apply [{:src "./hello-world.j2"
+          :dest "/tmp/hello-world.txt"}]}
 ```
 
 ### user module
@@ -390,8 +387,8 @@ Using user module.
 
 ```edn
 {:module "git"
- :apply [{:repos "git@github.com:rosineygp/lines.git"   :dest "lines"}
-         {:repos "git@github.com:rosineygp/mkdkraa.git" :dest "mkdkr"}]}
+ :apply [{:repos "git@github.com:rosineygp/lines.git" :dest "lines"}
+         {:repos "git@github.com:rosineygp/mkdkr.git" :dest "mkdkr"}]}
 ```
 
 ```edn
