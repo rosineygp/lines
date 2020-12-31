@@ -27,6 +27,11 @@ _code_block() {
   } >> "${d}"
 }
 
+slug() {
+  local -r str="${1}"
+  sed -E 's/:|\/|-/_/g' <<< "${str}"
+}
+
 _branch_or_tag_name() {
   local branch="unknown"
   if [[ "$GITHUB_ACTIONS" == "true" ]]; then
@@ -86,7 +91,7 @@ sed -i --regexp-extended '/^([ ]+#|#)/d;/^$/d;s/[ \t]*$//;s/^[ \t]*//;/^$/d' .fl
 sed -i '1 s/^/#\!\/usr\/bin\/env bash\n/' .flk
 
 #set version
-_version=$(_branch_or_tag_name)
+_version=$(slug $(_branch_or_tag_name))
 sed -i "s/__LINES_REPLACE_VERSION/$_version/g" .flk
 
 # footer injection (spawn errors)
