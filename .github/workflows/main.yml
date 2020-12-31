@@ -13,7 +13,7 @@ jobs:
     - name: test unit
       run: |
         ./build.sh
-        ./lines -c .lines.cjl -a test=unit
+        ./lines -c .lines.clj -a test=unit
   test_edn:
     runs-on: ubuntu-18.04
     steps:
@@ -22,7 +22,7 @@ jobs:
       continue-on-error: true
       run: |
         ./build.sh
-        ./lines -c .lines.cjl -a edn
+        ./lines -c .lines.clj -a edn
   test_integration:
     runs-on: ubuntu-18.04
     steps:
@@ -30,4 +30,4 @@ jobs:
     - name: test integration
       run: |
         ./build.sh
-        ./lines -c .lines.cjl -a test=integration
+        ./lines -c .lines.clj -a test=integration
