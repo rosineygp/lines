@@ -1,5 +1,5 @@
 <p align="center">
-  <a alt="mkdkr" href="https://rosineygp.github.io/mkdkr">
+  <a alt="lines" href="https://rosineygp.github.io/lines">
     <img src="docs/assets/logo.png"/>
   </a>
 </p>
@@ -39,7 +39,7 @@ Table of contents
   * [Targets file](#targets-file)
 * [Clojure Pipeline](#clojure-pipeline)
   * [Lines functions](#lines-functions)
-  * [Environment vars](#enviroment-vars)
+* [Environment vars](#environment-vars)
 * [Extensions](#extensions)
 * [Development](#development)
 
@@ -518,7 +518,7 @@ The result of function `job` is the following data:
              :debug "  bash -c $' export BRANCH_NAME_SLUG=\"master\" BRANCH_NAME=\"master\" ; echo hello world! ' "}))})
 ```
 
-### Environment vars
+## Environment vars
 
 Lines variables definition.
 
