@@ -1,0 +1,74 @@
+--- flk	2021-01-02 15:01:35.797605870 -0300
++++ flk_patch	2021-01-02 15:01:33.185554453 -0300
+@@ -392,22 +392,46 @@
+     local items="${ANON["${1}"]}"; shift
+ 
+     # core count
+-    local cores=1
++    local cores=2
+     if [[ -z "$FLK_MAX_THREADS" ]]; then
+-        while read -r line; do
+-            if [[ "$line" =~ "processor" ]]; then
+-                ((cores++))
+-            fi
+-        done < "/proc/cpuinfo"
++        if [ -z "/proc/cpuinfo" ]; then
++            while read -r line; do
++                if [[ "$line" =~ "processor" ]]; then
++                    ((cores++))
++                fi
++            done < "/proc/cpuinfo"
++        elif [[ -x $(command -v nproc) ]]; then
++            cores="$(nproc)"
++        elif [[ -x $(command -v sysctl) ]]; then
++            # macos only
++            cores="$(sysctl -n hw.ncpu)"
++        fi
+     else
+         cores="$FLK_MAX_THREADS"
+     fi
+ 
++    if ! [[ $cores =~ ^[0-9]+$ ]] ; then
++        cores=2
++    fi
++
+     # create id for shared memory
+     time_ms; local pmap_id="${ANON["${r}"]}"
+ 
+     eval "${constructor}"; local new_seq="${r}"
+ 
++    # create temp directory if /dev/shm not exist
++
++    local shm_dir="/dev/shm"
++
++    if [ ! -d "$shm_dir" ];then
++        if [[ -x $(command -v mktemp) ]]; then
++            shm_dir="$(mktemp -d)"
++        else
++            mkdir -p "/tmp/${pmap_id}"
++            shm_dir="/tmp/${pmap_id}"
++        fi                     
++    fi
++
+     local index=0
+     for v in ${items}; do        
+         (
+@@ -415,7 +439,7 @@
+             [[ "${__ERROR}" ]] && r= && return 1;
+ 
+             pr_str "${r}"
+-            echo -n "${ANON["${r}"]}" > "/dev/shm/_flk_pmap_${pmap_id}_${index}"
++            echo -n "${ANON["${r}"]}" > "${shm_dir}/_flk_pmap_${pmap_id}_${index}"
+         ) &
+ 
+         ((index++))
+@@ -432,7 +456,8 @@
+ 
+     index=0
+     for v in ${items}; do
+-        READ_STR "$(</dev/shm/_flk_pmap_${pmap_id}_${index})" && unlink "/dev/shm/_flk_pmap_${pmap_id}_${index}" > /dev/null 2>&1
++        READ_STR "$(<${shm_dir}/_flk_pmap_${pmap_id}_${index})"
++        unlink "${shm_dir}/_flk_pmap_${pmap_id}_${index}" > /dev/null 2>&1
+         _conj! "${new_seq}" "${r}";
+         ((index++))
+     done
