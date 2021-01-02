@@ -48,6 +48,7 @@ Table of contents
 ### requirements
 
 * bash 4
+* coreutils
 * docker ¹
 * ssh ²
 * scp ²
