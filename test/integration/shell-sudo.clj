@@ -1,6 +1,5 @@
 (def j {:name "sudo test"
         :args {:sudo true}
-        :apply ["apt-get update"
-                "apt-get upgrade -y"]})
+        :apply ["apt-get update"]})
 
-(prn (job j))
+(lines-pp (job j))

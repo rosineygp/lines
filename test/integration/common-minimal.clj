@@ -2,4 +2,4 @@
   :retries 2
   :apply ["echo welcome to lines"]})
 
-(prn (job j))
+(lines-pp (job j))
