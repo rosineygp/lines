@@ -1,6 +1,6 @@
 (def j {:name "ignore-error"
         :ignore-error true
-        :apply ["apt-get update"
-                "apt-get upgrade -y"]})
+        :apply ["echo error"
+                "exit 1"]})
 
-(prn (job j))
+(lines-pp (job j))

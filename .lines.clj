@@ -11,6 +11,6 @@
 (if (or (= test "all") (= test "unit"))
   (lines-pp (test-folder "./flk" "test/unit/" false)))
 (if (or (= test "all") (= test "integration"))
-  (lines-pp (test-folder "./lines -c" "test/integration/" true)))
+  (lines-pp (test-folder "./lines -c" "test/integration/" false)))
 (if (or (= test "all") (= test "edn"))
   (lines-pp (test-folder "./lines -p" "test/edn/" true)))

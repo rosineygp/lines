@@ -1,6 +1,6 @@
 (def j {:name "retries"
         :retries 2
-        :apply ["apt-get update"
-                "apt-get upgrade -y"]})
+        :ignore-error true
+        :apply ["apt-get update"]})
 
-(prn (job j))
+(lines-pp (job j))

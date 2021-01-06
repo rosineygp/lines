@@ -2,6 +2,7 @@
         :target {:host "192.168.1.12"
                  :user "root"
                  :method "ssh"}
+        :ignore-error true
         :apply ["apt update && apt upgrade -y"]})
 
-(prn (job j))
+(lines-pp (job j))
