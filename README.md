@@ -49,6 +49,7 @@ Table of contents
 
 * bash 4
 * coreutils
+* git
 * docker ¹
 * ssh ²
 * scp ²
@@ -242,13 +243,22 @@ Is it the default module, just spawn scripts to shell.
  :apply ["date"]}
 ```
 
+> Command will be executed inside a `heredoc` block
+
+```shell
+<command_header> bash -s <<-'LINES-BLOCK-EOF'
+export <env vars>;
+commands
+LINES-BLOCK-EOF
+```
+
 #### arguments
 
-| keyword    | type    | description                                    |
-|------------|---------|------------------------------------------------|
-| sudo¹      | boolean | apply commands using sudo                      |
-| user¹      | string  | change current user                            |
-| entrypoint | array   | change initial entry command (default is bash) |
+| keyword    | type    | description                                               |
+|------------|---------|-----------------------------------------------------------|
+| sudo¹      | boolean | apply commands using sudo                                 |
+| user¹      | string  | change current user                                       |
+| entrypoint | array   | change initial entry command (default is `["bash" "-s"]`) |
 
 > ¹ needs pre configured sudoers (without password)
 
