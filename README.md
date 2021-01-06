@@ -526,7 +526,7 @@ The result of function `job` is the following data:
              :stdout "hello world!"
              :stderr ""
              :start 1608684590233
-             :debug "  bash -c $' export BRANCH_NAME_SLUG=\"master\" BRANCH_NAME=\"master\" ; echo hello world! ' "}))})
+             :debug "  bash -s <<-'LINES-BLOCK-EOF'\n export BRANCH_NAME_SLUG=\"master\" BRANCH_NAME=\"master\" ;\n echo hello world! \nLINES-BLOCK-EOF"}))})
 ```
 
 ## Environment vars
