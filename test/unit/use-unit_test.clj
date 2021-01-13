@@ -19,4 +19,4 @@
   (testing "assignment nonexistent command"
     (try*
      (use ["fake_command"])
-     (catch* e (is (= e "exit-code 1"))))))
+     (catch* e (is (= e {:exit-code 1}))))))
