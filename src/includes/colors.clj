@@ -27,14 +27,13 @@
                   reverse-color 7
                   concealed     8})
 
-(defmacro! colors-make
-  (fn* [list]
-       (map (fn* [color]
-                 (quasiquote (defn ~color [string]
-                    (str
-                     (colors-escape-code (get colors-code ~color))
-                     string
-                     (colors-reset))))) list)))
+(defn colors-make [l]
+  (map (fn [color]
+         (eval (quasiquote (defn ~(symbol color) [string]
+                             (str
+                              (colors-escape-code (get colors-code ~color))
+                              string
+                              (colors-reset)))))) l))
 
 (colors-make ["gray"
               "red"
