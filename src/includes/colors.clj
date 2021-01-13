@@ -28,32 +28,32 @@
                   concealed     8})
 
 (defn colors-make [l]
-  (map (fn [color]
-         (eval (quasiquote (defn ~(symbol color) [string]
-                             (str
-                              (colors-escape-code (get colors-code ~color))
-                              string
-                              (colors-reset)))))) l))
+  (pmap (fn [color]
+          (quasiquote (defn ~(symbol color) [string]
+                        (str
+                         (colors-escape-code (get colors-code ~color))
+                         string
+                         (colors-reset))))) l))
 
-(colors-make ["gray"
-              "red"
-              "green"
-              "yellow"
-              "blue"
-              "magenta"
-              "cyan"
-              "white"
-              "bg-gray"
-              "bg-red"
-              "bg-green"
-              "bg-yellow"
-              "bg-blue"
-              "bg-magenta"
-              "bg-cyan"
-              "bg-white"
-              "bold"
-              "dark"
-              "underline"
-              "blink"
-              "reverse-color"
-              "concealed"])
+(map eval (colors-make ["gray"
+                        "red"
+                        "green"
+                        "yellow"
+                        "blue"
+                        "magenta"
+                        "cyan"
+                        "white"
+                        "bg-gray"
+                        "bg-red"
+                        "bg-green"
+                        "bg-yellow"
+                        "bg-blue"
+                        "bg-magenta"
+                        "bg-cyan"
+                        "bg-white"
+                        "bold"
+                        "dark"
+                        "underline"
+                        "blink"
+                        "reverse-color"
+                        "concealed"]))
