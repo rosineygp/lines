@@ -75,6 +75,12 @@ cp .flk flk
 
 patch -i "patches/027-boot.lines.patch" -u .flk
 
+#update patch
+if [ -f ".flk.orig" ]; then
+  diff -u  flk .flk > patches/027-boot.lines.patch || true
+  rm -rf .flk.orig
+fi
+
 _code_block "src/includes/lang-utils.clj" ".flk"
 _code_block "src/args.clj" ".flk"
 _code_block "src/includes/use.clj" ".flk"
