@@ -1,0 +1,16 @@
+--- flk	2021-01-15 22:05:51.559294432 -0300
++++ flk-p	2021-01-15 22:05:46.671183010 -0300
+@@ -472,7 +472,12 @@
+ }
+ 
+ _pmap () {
+-    _pmap_with_type _list "${@}"
++    _count  "${2}"
++    if ((r > 1)); then
++        _pmap_with_type _list "${@}"
++    else
++        _map_with_type _list "${@}"
++    fi
+ }
+ 
+ fi

@@ -75,6 +75,9 @@ cp .flk flk
 
 patch -i "patches/027-boot.lines.patch" -u .flk
 
+#update patch
+diff -u  flk .flk > patches/027-boot.lines.patch || true
+
 _code_block "src/includes/lang-utils.clj" ".flk"
 _code_block "src/args.clj" ".flk"
 _code_block "src/includes/use.clj" ".flk"
@@ -97,4 +100,5 @@ sed -i "s/__LINES_REPLACE_VERSION/$_version/g" .flk
 # footer injection (spawn errors)
 echo -n '[ "${r}" = "nil" ] && exit 0 || { echo "${r}"; exit 127; };' >> .flk
 
+rm -rf .flk.orig
 mv .flk lines
