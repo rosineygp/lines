@@ -61,21 +61,24 @@
 (defn lines-pp-status [result]
   (str (magenta "status:") " " (get result :status)))
 
+(defn str-lines-pp [i]
+  (if (sequential? i)
+    (do
+      (apply str-join "\n" (concat [(bold (magenta (str "parallel: " (count i) " { ")))]
+                                   (pmap str-lines-pp i)
+                                   [(bold (magenta "}"))])))
+    (do
+      (apply str-join "\n" (concat [(lines-pp-title (get i :name))
+                                    (lines-pp-target-label (or (get-in i [:target :label]) (get-in i [:target :host])))
+                                    (lines-pp-start (get i :start))]
+                                   (pmap (fn [l]
+                                           (lines-pp-script l)) (get i :result))
+                                   [(lines-pp-status (get i :status))
+                                    (lines-pp-finished (get i :finished))])))))
+
 (defn lines-pp [l]
-  (map (fn [i]
-         (if (sequential? i)
-           (do
-             (println (bold (magenta (str "parallel: " (count i) " { "))))
-             (lines-pp i)
-             (println (bold (magenta "}"))))
-           (do
-             (println (lines-pp-title (get i :name)))
-             (println (lines-pp-target-label (or (get-in i [:target :label]) (get-in i [:target :host]))))
-             (println (lines-pp-start (get i :start)))
-             (map (fn [l]
-                    (println (lines-pp-script l))) (get i :result))
-             (println (lines-pp-status (get i :status)))
-             (println (lines-pp-finished (get i :finished)))))) (if (sequential? l) l (list l))) l)
+   (map (fn [i] (println (str-lines-pp i)))  l) l)
+
 
 (defn lines-pp-minimal [l]
   (map (fn [i]
