@@ -1,61 +1,22 @@
-(def! colors-escape-code
-  (fn* [i]
-       (str "\033[" i "m")))
-
-(def! colors-reset (fn* [] (colors-escape-code 0)))
-
-(def! colors-code {gray    30
-                   red     31
-                   green   32
-                   yellow  33
-                   blue    34
-                   magenta 35
-                   cyan    36
-                   white   37
-                   bg-gray    40
-                   bg-red     41
-                   bg-green   42
-                   bg-yellow  43
-                   bg-blue    44
-                   bg-magenta 45
-                   bg-cyan    46
-                   bg-white   47
-                   bold          1
-                   dark          2
-                   underline     4
-                   blink         5
-                   reverse-color 7
-                   concealed     8})
-
-(def! colors-make
-  (fn* [l]
-       (pmap (fn* [color]
-                  (quasiquote (def! ~(symbol color)
-                                (fn* [string]
-                                     (str
-                                      (colors-escape-code (get colors-code ~color))
-                                      string
-                                      (colors-reset)))))) l)))
-
-(map eval (colors-make ["gray"
-                        "red"
-                        "green"
-                        "yellow"
-                        "blue"
-                        "magenta"
-                        "cyan"
-                        "white"
-                        "bg-gray"
-                        "bg-red"
-                        "bg-green"
-                        "bg-yellow"
-                        "bg-blue"
-                        "bg-magenta"
-                        "bg-cyan"
-                        "bg-white"
-                        "bold"
-                        "dark"
-                        "underline"
-                        "blink"
-                        "reverse-color"
-                        "concealed"]))
+(def! gray          (fn* [s] (str "\033[30m" s "\033[0m")))
+(def! red           (fn* [s] (str "\033[31m" s "\033[0m")))
+(def! green         (fn* [s] (str "\033[32m" s "\033[0m")))
+(def! yellow        (fn* [s] (str "\033[33m" s "\033[0m")))
+(def! blue          (fn* [s] (str "\033[34m" s "\033[0m")))
+(def! magenta       (fn* [s] (str "\033[35m" s "\033[0m")))
+(def! cyan          (fn* [s] (str "\033[36m" s "\033[0m")))
+(def! white         (fn* [s] (str "\033[37m" s "\033[0m")))
+(def! bg-gray       (fn* [s] (str "\033[40m" s "\033[0m")))
+(def! bg-red        (fn* [s] (str "\033[41m" s "\033[0m")))
+(def! bg-green      (fn* [s] (str "\033[42m" s "\033[0m")))
+(def! bg-yellow     (fn* [s] (str "\033[43m" s "\033[0m")))
+(def! bg-blue       (fn* [s] (str "\033[44m" s "\033[0m")))
+(def! bg-magenta    (fn* [s] (str "\033[45m" s "\033[0m")))
+(def! bg-cyan       (fn* [s] (str "\033[46m" s "\033[0m")))
+(def! bg-white      (fn* [s] (str "\033[47m" s "\033[0m")))
+(def! bold          (fn* [s] (str "\033[1m"  s "\033[0m")))
+(def! dark          (fn* [s] (str "\033[2m"  s "\033[0m")))
+(def! underline     (fn* [s] (str "\033[4m"  s "\033[0m")))
+(def! blink         (fn* [s] (str "\033[5m"  s "\033[0m")))
+(def! reverse-color (fn* [s] (str "\033[7m"  s "\033[0m")))
+(def! concealed     (fn* [s] (str "\033[8m"  s "\033[0m")))
