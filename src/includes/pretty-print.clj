@@ -97,7 +97,7 @@
 
 (def! lines-pp
   (fn* [l]
-       (map (fn* [i] (println (str-lines-pp i))) (to-list l)) l))
+       (do (map (fn* [i] (println (str-lines-pp i))) (to-list l)) l)))
 
 (def! lines-pp-minimal
   (fn* [l]
